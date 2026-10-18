@@ -18,9 +18,9 @@
 
 | Atividade | Quem | Por quê |
 |---|---|---|
-| Identificar ambiguidades | | |
-| Decidir as ambiguidades | | |
-| Escrever a spec | | |
+| Identificar ambiguidades |Claude/devin | Não identifiquei mais ambiguidades, queria ver o que encontrariam |
+| Decidir as ambiguidades |Claude/devin | Queria ver como decidiriam, depois revisei |
+| Escrever a spec |Claude/devin | Utilizei a spec-kit pois já tem um padrão, especialização, etc|
 | Desenhar a arquitetura | | |
 | Implementar | | |
 | Escrever testes | | |
@@ -33,6 +33,13 @@
 **Usei subagentes / skills / MCP / hooks?** <se sim: o quê, como configurou,
 valeu a pena. Se não: por que não.>
 
+constitution
+    constitution.sdd-desafio.md|pedi pra IA criar com base nas regras do desafio e todos os documentos
+skills
+    challenge-doc|pedi para a IA criar uma skill que fizesse os commits, pushs, etc e registrasse em log
+    spec-kit|baixei o projeto do github e pedi pra IA instalar| Valeu a pena
+MCP
+    github-mcp-server|baixei no marketplace|Valeu a pena
 ---
 
 ## Descrição

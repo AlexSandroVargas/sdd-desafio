@@ -7,6 +7,10 @@ description: Documenta a sessão atual do desafio SDD em docs/sessions com numer
 
 > **Nota:** existe uma cópia desta skill em `docs/skills/challenge-doc.md`.
 > Sempre que este arquivo for alterado, mantenha a cópia sincronizada.
+>
+> **Regra de commits/pushs:** a partir de agora, commits e pushs no projeto
+> só ocorrem durante a execução desta skill. O agente não deve fazer commits
+> ou pushs fora do `challenge-doc`.
 
 Documenta a sessão de trabalho atual seguindo as regras de rastreabilidade do
 desafio (`constitution.sdd-desafio.md`, princípio VII: evidência ou não aconteceu).
@@ -56,16 +60,18 @@ Crie `docs/sessions/<NN>-<nome-da-tarefa>.md` contendo:
 
 2. Atualize `docs/sessions/log-session.md` conforme o passo 5.
 
-3. Execute `git add` para o arquivo da sessão e para `log-session.md` caso
-   ainda não estejam staged.
+3. Execute `git add -A` para incluir todas as alterações pendentes da sessão.
 
-4. Faça commit dos dois arquivos juntos com a mensagem:
+4. Se `docs/sessions/log-commit.md` estiver staged, remova-o do index com
+   `git reset docs/sessions/log-commit.md` (ele não deve ser commitado).
+
+5. Faça commit com a mensagem:
 
    ```
    docs(sessions): <nome-da-tarefa>
    ```
 
-5. Faça push para o repositório remoto: `git push`.
+6. Faça push para o repositório remoto: `git push`.
 
 ### 5. Atualizar log-session.md
 

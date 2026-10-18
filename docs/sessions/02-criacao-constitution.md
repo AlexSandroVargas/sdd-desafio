@@ -38,10 +38,10 @@ Mais um checklist final das penalidades transversais da rubrica.
 ---
 
 ### Usuário
-> crie a skill "challenge-doc", que deve documentar as informações da session, solicitar o nome da tarefa e gerar o nome do arquivo .md em /docs/sessions com número sequencial incremental + nome da tarefa; conteúdo incremental em relação à sessão anterior; commit com o nome da tarefa; e gerar/atualizar log.md com colunas data, hora, tarefa e id do commit.
+> crie a skill "challenge-doc", que deve documentar as informações da session, solicitar o nome da tarefa e gerar o nome do arquivo .md em /docs/sessions com número sequencial incremental + nome da tarefa; conteúdo incremental em relação à sessão anterior; commit com o nome da tarefa; e gerar/atualizar log-session.md com colunas data, hora, tarefa e id do commit.
 
 ### Devin
-Criou `.devin/skills/challenge-doc/SKILL.md` com o procedimento: solicitar nome da tarefa (slug), calcular sequencial (último NN + 1), gerar `NN-<tarefa>.md` com conteúdo incremental em relação à sessão NN-1, commit `docs(sessions): <tarefa>`, e manter `docs/sessions/log.md` com colunas Data | Hora | Tarefa | Commit.
+Criou `.devin/skills/challenge-doc/SKILL.md` com o procedimento: solicitar nome da tarefa (slug), calcular sequencial (último NN + 1), gerar `NN-<tarefa>.md` com conteúdo incremental em relação à sessão NN-1, commit `docs(sessions): <tarefa>`, e manter `docs/sessions/log-session.md` com colunas Data | Hora | Tarefa | Commit.
 
 ---
 
@@ -49,4 +49,4 @@ Criou `.devin/skills/challenge-doc/SKILL.md` com o procedimento: solicitar nome 
 > sim, "criacao-constitution"
 
 ### Devin
-Executou a skill `challenge-doc` com a tarefa `criacao-constitution`, gerando este arquivo (`02-criacao-constitution.md`), o commit correspondente e a entrada em `docs/sessions/log.md`.
+Executou a skill `challenge-doc` com a tarefa `criacao-constitution`, gerando este arquivo (`02-criacao-constitution.md`), o commit correspondente e a entrada em `docs/sessions/log-session.md`.

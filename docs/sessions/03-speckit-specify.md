@@ -40,4 +40,4 @@ Solicitou o nome da tarefa para registro da sessão.
 > speckit-specify
 
 ### Devin
-Normalizou o nome para `speckit-specify`, determinou o sequencial `03`, gerou `docs/sessions/03-speckit-specify.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log.md` e fez commit `docs(sessions): speckit-specify`.
+Normalizou o nome para `speckit-specify`, determinou o sequencial `03`, gerou `docs/sessions/03-speckit-specify.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log-session.md` e fez commit `docs(sessions): speckit-specify`.

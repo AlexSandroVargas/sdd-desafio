@@ -1,6 +1,6 @@
 ---
 name: challenge-doc
-description: Documenta a sessão atual do desafio SDD em docs/sessions com numeração sequencial, registra em log.md e faz commit rastreável. Use ao final de cada sessão de trabalho ou quando o usuário pedir para registrar/exportar a sessão.
+description: Documenta a sessão atual do desafio SDD em docs/sessions com numeração sequencial, registra em log-session.md, mantém log-commit.md com histórico de commits, faz commit rastreável e push. Use ao final de cada sessão de trabalho ou quando o usuário pedir para registrar/exportar a sessão.
 ---
 
 # challenge-doc — Registro de sessão do desafio SDD
@@ -22,7 +22,8 @@ Liste os arquivos em `docs/sessions/` que seguem o padrão `NN-*.md`
 (dois dígitos, hífen). O novo número é o maior encontrado + 1, com zero à
 esquerda (`01`, `02`, ..., `10`, `11`). Se nenhum existir, comece em `01`.
 
-Ignore `log.md` e qualquer arquivo que não siga o padrão.
+Ignore `log-session.md`, `log-commit.md` e qualquer arquivo que não siga o padrão
+`NN-*.md`.
 
 ### 3. Gerar o arquivo da sessão
 
@@ -44,17 +45,28 @@ Crie `docs/sessions/<NN>-<nome-da-tarefa>.md` contendo:
   trecho incremental para Markdown no formato pergunta/resposta. Se não
   estiver (flag de inicialização), transcreva o transcript diretamente.
 
-### 4. Commit
+### 4. Commit e push
 
-Faça commit do arquivo da sessão **e** do `log.md` (juntos) com a mensagem:
+1. Verifique se `log.md` ainda existe e `log-session.md` ainda não existe.
+   Se essa condição for verdadeira, **renomeie** `log.md` para
+   `log-session.md` e atualize as referências em `docs/sessions/NN-*.md`.
 
-```
-docs(sessions): <nome-da-tarefa>
-```
+2. Atualize `docs/sessions/log-session.md` conforme o passo 5.
 
-### 5. Atualizar log.md
+3. Execute `git add` para o arquivo da sessão e para `log-session.md` caso
+   ainda não estejam staged.
 
-Arquivo: `docs/sessions/log.md`.
+4. Faça commit dos dois arquivos juntos com a mensagem:
+
+   ```
+   docs(sessions): <nome-da-tarefa>
+   ```
+
+5. Faça push para o repositório remoto: `git push`.
+
+### 5. Atualizar log-session.md
+
+Arquivo: `docs/sessions/log-session.md`.
 
 - Se não existir, crie com cabeçalho `# Log de Sessões` e a tabela:
 
@@ -70,17 +82,43 @@ Arquivo: `docs/sessions/log.md`.
   ```
 
 Ordem de execução: escreva a linha do log, depois faça um **amend** ou inclua
-o `log.md` no mesmo commit do passo 4 — preferencial: gere o commit do arquivo
-de sessão primeiro para obter o hash, depois escreva o log e faça
+o `log-session.md` no mesmo commit do passo 4 — preferencial: gere o commit do
+arquivo de sessão primeiro para obter o hash, depois escreva o log e faça
 `git commit --amend --no-edit` incluindo o log. Alternativa simples aceitável:
 commite os dois arquivos juntos e use `git rev-parse --short HEAD` para o hash,
 registrando-o num segundo commit `docs(sessions): log <nome-da-tarefa>` — prefira
 a primeira opção (amend) para manter um commit por sessão.
+
+### 6. Atualizar log-commit.md
+
+Arquivo: `docs/sessions/log-commit.md`.
+
+Regenere este arquivo a cada execução do `challenge-doc`, incluindo **todos os
+commits do repositório** (local e remoto). **Não commite este arquivo**: se ele
+fizer parte de um commit, o log teria que se referir a si mesmo, gerando
+recursão.
+
+Formato:
+
+```markdown
+# Log de Commits
+
+| Data | Hora | Descrição | Commit | Componentes |
+|---|---|---|---|---|
+| <AAAA-MM-DD> | <HH:MM> | <mensagem do commit> | <hash curto> | <arquivo1>; <arquivo2>; ... |
+```
+
+Para preencher a coluna **Componentes**, use os arquivos afetados por cada
+commit (saída de `git show --name-only <hash>`), separados por ponto e vírgula.
+
+Após gerar `log-commit.md`, **não execute `git add` nem `git commit`** para ele.
 
 ## Verificações antes de finalizar
 
 - [ ] Nome da tarefa foi fornecido pelo usuário (não inventado)
 - [ ] Número sequencial correto (último + 1)
 - [ ] Conteúdo incremental — sem duplicar o que já está na sessão NN-1
-- [ ] `log.md` tem uma linha por sessão, em ordem cronológica
+- [ ] `log-session.md` tem uma linha por sessão, em ordem cronológica
+- [ ] `log-commit.md` existe e lista todos os commits com componentes
 - [ ] Commit existe e a mensagem contém o nome da tarefa
+- [ ] Push foi realizado

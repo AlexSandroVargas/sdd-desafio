@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "motor-reembolso-output",
+  "title": "Motor de Cálculo de Reembolso — Output",
+  "description": "Schema da saída produzida pelo comando calcular. Adaptado de specs/001-motor-reembolso/spec.md seção 4.",
+  "type": "object",
+  "required": ["colaborador", "periodo", "resumo", "despesas", "alertas"],
+  "properties": {
+    "colaborador": {
+      "type": "object",
+      "required": ["id", "nome", "centro_custo"],
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string" },
+        "centro_custo": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "periodo": {
+      "type": "object",
+      "required": ["competencia", "inicio", "fim"],
+      "properties": {
+        "competencia": { "type": "string" },
+        "inicio": { "type": "string" },
+        "fim": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "resumo": {
+      "type": "object",
+      "required": ["total_declarado", "total_reembolsavel", "total_nao_reembolsavel", "total_rejeitado", "quantidade_despesas"],
+      "properties": {
+        "total_declarado": { "type": "number" },
+        "total_reembolsavel": { "type": "number" },
+        "total_nao_reembolsavel": { "type": "number" },
+        "total_rejeitado": { "type": "number" },
+        "quantidade_despesas": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "despesas": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/resultadoDespesa" }
+    },
+    "alertas": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/alerta" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "resultadoDespesa": {
+      "type": "object",
+      "required": ["id", "data", "categoria", "valor_declarado", "valor_reembolsavel", "valor_nao_reembolsavel", "status", "motivo"],
+      "properties": {
+        "id": { "type": "string" },
+        "data": { "type": "string" },
+        "categoria": { "type": "string" },
+        "valor_declarado": { "type": "number" },
+        "valor_reembolsavel": { "type": "number" },
+        "valor_nao_reembolsavel": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["aprovado", "parcial", "rejeitado", "estorno"]
+        },
+        "motivo": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "alerta": {
+      "type": "object",
+      "required": ["tipo", "despesas"],
+      "properties": {
+        "tipo": { "type": "string" },
+        "despesas": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

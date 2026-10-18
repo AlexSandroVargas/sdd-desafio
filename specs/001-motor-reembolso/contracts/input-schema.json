@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "motor-reembolso-input",
+  "title": "Motor de Cálculo de Reembolso — Input",
+  "description": "Schema da entrada aceita pelo comando calcular. Adaptado de specs/001-motor-reembolso/spec.md seção 4.",
+  "type": "object",
+  "required": ["colaborador", "periodo", "despesas"],
+  "properties": {
+    "colaborador": {
+      "type": "object",
+      "required": ["id", "nome", "centro_custo"],
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string" },
+        "centro_custo": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "periodo": {
+      "type": "object",
+      "required": ["competencia", "inicio", "fim"],
+      "properties": {
+        "competencia": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}$"
+        },
+        "inicio": {
+          "type": "string",
+          "format": "date"
+        },
+        "fim": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "despesas": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/despesa" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "despesa": {
+      "type": "object",
+      "required": ["id", "data", "categoria", "descricao", "fornecedor", "valor", "tem_nota_fiscal"],
+      "properties": {
+        "id": { "type": "string" },
+        "data": {
+          "type": "string",
+          "format": "date"
+        },
+        "categoria": { "type": "string" },
+        "descricao": { "type": "string" },
+        "fornecedor": { "type": "string" },
+        "valor": { "type": "number" },
+        "tem_nota_fiscal": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

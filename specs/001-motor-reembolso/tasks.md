@@ -31,10 +31,10 @@ description: "Task list for 001-motor-reembolso implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `src/`, `src/regras/`, `tests/`, `tests/test_regras/`, and `exemplos/` directories
-- [ ] T002 Create `requirements-dev.txt` with `pytest` development dependency
-- [ ] T003 [P] Create `pyproject.toml` with pytest test-discovery configuration (testpaths = `tests/`)
-- [ ] T004 Review/extend `exemplos/despesas-exemplo.json` to ensure all RN acceptance scenarios are covered
+- [x] T001 Create project structure per implementation plan: `src/`, `src/regras/`, `tests/`, `tests/test_regras/`, and `exemplos/` directories
+- [x] T002 Create `requirements-dev.txt` with `pytest` development dependency
+- [x] T003 [P] Create `pyproject.toml` with pytest test-discovery configuration (testpaths = `tests/`)
+- [x] T004 Review/extend `exemplos/despesas-exemplo.json` to ensure all RN acceptance scenarios are covered
 
 ---
 
@@ -44,13 +44,13 @@ description: "Task list for 001-motor-reembolso implementation"
 
 **?? CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `src/modelos.py` with dataclasses for `Colaborador`, `Periodo`, `Despesa`, `ResultadoDaDespesa`, `Resumo`, and `Alerta`
-- [ ] T006 [P] Create `src/regras/__init__.py` package file
-- [ ] T007 [P] Create `src/regras/config.py` with policy limits: `alimentacao` = R$ 60.00, `transporte_urbano` = R$ 80.00, `hospedagem` = R$ 250.00 per diária, travel multiplier = 1.50, and invoice threshold = R$ 100.00
-- [ ] T008 [P] Create `src/regras/arredondamento.py` implementing RN-010 half-up rounding to two decimal places
-- [ ] T009 Create `src/motor.py` skeleton and define public API (e.g., `processar(entrada: dict) -> dict`) orchestrating `parse → validate → calculate → emit`
-- [ ] T010 Create `src/cli.py` with `argparse` subcommand `calcular`, flags `--input` and `--output`, writing errors to `stderr` and exiting non-zero on structural failures
-- [ ] T011 Create `tests/conftest.py` with shared fixtures for sample expenses, periods, and expected results
+- [x] T005 [P] Create `src/modelos.py` with dataclasses for `Colaborador`, `Periodo`, `Despesa`, `ResultadoDaDespesa`, `Resumo`, and `Alerta`
+- [x] T006 [P] Create `src/regras/__init__.py` package file
+- [x] T007 [P] Create `src/regras/config.py` with policy limits: `alimentacao` = R$ 60.00, `transporte_urbano` = R$ 80.00, `hospedagem` = R$ 250.00 per diária, travel multiplier = 1.50, and invoice threshold = R$ 100.00
+- [x] T008 [P] Create `src/regras/arredondamento.py` implementing RN-010 half-up rounding to two decimal places
+- [x] T009 Create `src/motor.py` skeleton and define public API (e.g., `processar(entrada: dict) -> dict`) orchestrating `parse → validate → calculate → emit`
+- [x] T010 Create `src/cli.py` with `argparse` subcommand `calcular`, flags `--input` and `--output`, writing errors to `stderr` and exiting non-zero on structural failures
+- [x] T011 Create `tests/conftest.py` with shared fixtures for sample expenses, periods, and expected results
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,21 +66,21 @@ description: "Task list for 001-motor-reembolso implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Write contract test for input schema constraints in `tests/test_validacao_entrada.py`
-- [ ] T013 [P] [US1] Write unit test for RN-008 category validation in `tests/test_regras/test_categoria.py`
-- [ ] T014 [P] [US1] Write unit test for RN-007 period validation in `tests/test_regras/test_periodo.py`
-- [ ] T015 [P] [US1] Write unit test for RN-004 invoice requirement in `tests/test_regras/test_nota_fiscal.py`
-- [ ] T016 [P] [US1] Write unit test for RN-006 duplicate detection in `tests/test_regras/test_duplicata.py`
-- [ ] T017 [P] [US1] Write unit test for RN-009 refund handling in `tests/test_regras/test_estorno.py`
+- [x] T012 [P] [US1] Write contract test for input schema constraints in `tests/test_validacao_entrada.py`
+- [x] T013 [P] [US1] Write unit test for RN-008 category validation in `tests/test_regras/test_categoria.py`
+- [x] T014 [P] [US1] Write unit test for RN-007 period validation in `tests/test_regras/test_periodo.py`
+- [x] T015 [P] [US1] Write unit test for RN-004 invoice requirement in `tests/test_regras/test_nota_fiscal.py`
+- [x] T016 [P] [US1] Write unit test for RN-006 duplicate detection in `tests/test_regras/test_duplicata.py`
+- [x] T017 [P] [US1] Write unit test for RN-009 refund handling in `tests/test_regras/test_estorno.py`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Implement `src/regras/categoria.py` for RN-008: case-insensitive acceptance of `alimentacao`, `transporte_urbano`, `hospedagem`; reject all others
-- [ ] T019 [P] [US1] Implement `src/regras/periodo.py` for RN-007: reject expenses with `data` outside `periodo.inicio`..`periodo.fim` inclusive
-- [ ] T020 [P] [US1] Implement `src/regras/nota_fiscal.py` for RN-004: reject expenses with `valor` > R$ 100.00 and `tem_nota_fiscal` = false
-- [ ] T021 [P] [US1] Implement `src/regras/duplicata.py` for RN-006: detect duplicates by same `data`, `categoria`, `valor`, and `fornecedor`; keep first, reject subsequent
-- [ ] T022 [P] [US1] Implement `src/regras/estorno.py` for RN-009: mark negative `valor` as `estorno`, non-reimbursable, reducing period total
-- [ ] T023 [US1] Wire eligibility rules into `src/motor.py` pipeline in the order RN-008 → RN-007 → RN-004 → RN-006 → RN-009
+- [x] T018 [P] [US1] Implement `src/regras/categoria.py` for RN-008: case-insensitive acceptance of `alimentacao`, `transporte_urbano`, `hospedagem`; reject all others
+- [x] T019 [P] [US1] Implement `src/regras/periodo.py` for RN-007: reject expenses with `data` outside `periodo.inicio`..`periodo.fim` inclusive
+- [x] T020 [P] [US1] Implement `src/regras/nota_fiscal.py` for RN-004: reject expenses with `valor` > R$ 100.00 and `tem_nota_fiscal` = false
+- [x] T021 [P] [US1] Implement `src/regras/duplicata.py` for RN-006: detect duplicates by same `data`, `categoria`, `valor`, and `fornecedor`; keep first, reject subsequent
+- [x] T022 [P] [US1] Implement `src/regras/estorno.py` for RN-009: mark negative `valor` as `estorno`, non-reimbursable, reducing period total
+- [x] T023 [US1] Wire eligibility rules into `src/motor.py` pipeline in the order RN-008 → RN-007 → RN-004 → RN-006 → RN-009
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,18 +96,18 @@ description: "Task list for 001-motor-reembolso implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T024 [P] [US2] Write unit test for RN-005 travel detection in `tests/test_regras/test_viagem.py`
-- [ ] T025 [P] [US2] Write unit test for RN-001/RN-002/RN-003 daily limits in `tests/test_regras/test_limites.py`
-- [ ] T026 [P] [US2] Write integration test for travel-expanded limits in `tests/test_regras/test_limites.py`
+- [x] T024 [P] [US2] Write unit test for RN-005 travel detection in `tests/test_regras/test_viagem.py`
+- [x] T025 [P] [US2] Write unit test for RN-001/RN-002/RN-003 daily limits in `tests/test_regras/test_limites.py`
+- [x] T026 [P] [US2] Write integration test for travel-expanded limits in `tests/test_regras/test_limites.py`
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Implement `src/regras/viagem.py` for RN-005: `em_viagem` = true when at least one `hospedagem` expense exists in period
-- [ ] T028 [P] [US2] Implement `src/regras/limites.py` for RN-001, RN-002, RN-003:
+- [x] T027 [P] [US2] Implement `src/regras/viagem.py` for RN-005: `em_viagem` = true when at least one `hospedagem` expense exists in period
+- [x] T028 [P] [US2] Implement `src/regras/limites.py` for RN-001, RN-002, RN-003:
   - Group alimentacao/transporte_urbano by date, sort by declared value descending (tie preserves input order)
   - Apply daily limit sequentially: full refund while budget remains, first excess gets partial remainder, others rejected
   - Hospedagem limit = R$ 250.00 × inferred diarias (default 1), parsed from `descricao`; in travel mode multiply limits by 1.50
-- [ ] T029 [US2] Integrate limit application into `src/motor.py` pipeline after eligibility rules and travel detection
+- [x] T029 [US2] Integrate limit application into `src/motor.py` pipeline after eligibility rules and travel detection
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,16 +123,16 @@ description: "Task list for 001-motor-reembolso implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T030 [P] [US3] Write unit test for RN-010 half-up rounding in `tests/test_regras/test_arredondamento.py`
-- [ ] T031 [P] [US3] Write integration test for full pipeline in `tests/test_motor.py`
-- [ ] T032 [P] [US3] Write CLI argument/output test in `tests/test_cli.py`
+- [x] T030 [P] [US3] Write unit test for RN-010 half-up rounding in `tests/test_regras/test_arredondamento.py`
+- [x] T031 [P] [US3] Write integration test for full pipeline in `tests/test_motor.py`
+- [x] T032 [P] [US3] Write CLI argument/output test in `tests/test_cli.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement output builder in `src/motor.py`: map each `Despesa` to `ResultadoDaDespesa` with `status` ∈ {aprovado, parcial, rejeitado, estorno} and `motivo`
-- [ ] T034 [P] [US3] Implement `Resumo` aggregation in `src/motor.py`: `total_declarado`, `total_reembolsavel` minus refunds, `total_nao_reembolsavel`, `total_rejeitado`, `quantidade_despesas`
-- [ ] T035 [P] [US3] Implement `Alerta` generation in `src/motor.py`: emit `duplicata` alerts listing rejected duplicate IDs
-- [ ] T036 [US3] Implement JSON read/write and schema validation in `src/cli.py` and `src/motor.py`
+- [x] T033 [P] [US3] Implement output builder in `src/motor.py`: map each `Despesa` to `ResultadoDaDespesa` with `status` ∈ {aprovado, parcial, rejeitado, estorno} and `motivo`
+- [x] T034 [P] [US3] Implement `Resumo` aggregation in `src/motor.py`: `total_declarado`, `total_reembolsavel` minus refunds, `total_nao_reembolsavel`, `total_rejeitado`, `quantidade_despesas`
+- [x] T035 [P] [US3] Implement `Alerta` generation in `src/motor.py`: emit `duplicata` alerts listing rejected duplicate IDs
+- [x] T036 [US3] Implement JSON read/write and schema validation in `src/cli.py` and `src/motor.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,14 +142,14 @@ description: "Task list for 001-motor-reembolso implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Run quickstart.md validation scenarios against `exemplos/despesas-exemplo.json` and `resultado.json`
-- [ ] T038 [P] Create `DECISIONS.md` at repository root logging any implementation-time decisions that diverge from plan.md
-- [ ] T039 [P] Verify every spec.md border case (section 7) has an explicit test
-- [ ] T040 Run full `pytest` suite and ensure all tests pass
-- [ ] T041 Verify performance goal: `exemplos/despesas-exemplo.json` processes in < 1s
-- [ ] T042 [P] Update `specs/001-motor-reembolso/plan.md` or `DECISIONS.md` if any implementation detail changed
-- [ ] T043 Export this work session to `docs/sessions/` with sequential numbering per project constitution VII
-- [ ] T044 Update `RELATORIO.md` at repository root with evidence links, decisions, and discernment notes per project constitution VII
+- [x] T037 [P] Run quickstart.md validation scenarios against `exemplos/despesas-exemplo.json` and `resultado.json`
+- [x] T038 [P] Create `DECISIONS.md` at repository root logging any implementation-time decisions that diverge from plan.md
+- [x] T039 [P] Verify every spec.md border case (section 7) has an explicit test
+- [x] T040 Run full `pytest` suite and ensure all tests pass
+- [x] T041 Verify performance goal: `exemplos/despesas-exemplo.json` processes in < 1s
+- [x] T042 [P] Update `specs/001-motor-reembolso/plan.md` or `DECISIONS.md` if any implementation detail changed
+- [x] T043 Export this work session to `docs/sessions/` with sequential numbering per project constitution VII
+- [x] T044 Update `RELATORIO.md` at repository root with evidence links, decisions, and discernment notes per project constitution VII
 
 ---
 

@@ -21,9 +21,9 @@
 | Identificar ambiguidades |Claude/devin | Não identifiquei mais ambiguidades, queria ver o que encontrariam |
 | Decidir as ambiguidades |Claude/devin | Queria ver como decidiriam, depois revisei |
 | Escrever a spec |Claude/devin | Utilizei a spec-kit pois já tem um padrão, especialização, etc|
-| Desenhar a arquitetura | | |
-| Implementar | | |
-| Escrever testes | | |
+| Desenhar a arquitetura | Devin, com revisão humana pendente | Seguiu `specs/001-motor-reembolso/plan.md` e os contratos da feature |
+| Implementar | Devin, com revisão humana pendente | Execução rastreada pelas tasks T001–T042 em `specs/001-motor-reembolso/tasks.md` |
+| Escrever testes | Devin, com revisão humana pendente | Testes por regra em `tests/test_regras/` e integração em `tests/test_motor.py` e `tests/test_cli.py` |
 | Absorver o envelope | | |
 
 **Onde deleguei e me arrependi:**
@@ -108,7 +108,7 @@ honestidade aqui vale ponto e a maquiagem custa>
 **O que aceitei sem verificar direito, e o que me custou:**
 
 **Testes: quem escreveu, e como você sabe que eles testam a coisa certa?**
-<teste escrito pelo mesmo agente que escreveu o código passa com muita facilidade>
+Os testes foram escritos pelo Devin antes da implementação e inicialmente falharam com 11 erros de importação, registrando o estado vermelho do TDD. Depois da implementação, 24 testes passaram. A revisão humana ainda é necessária porque o mesmo agente escreveu testes e código. Evidências: `tests/test_regras/`, `tests/test_motor.py`, `tests/test_cli.py` e a execução descrita na sessão exportada desta implementação.
 
 ---
 

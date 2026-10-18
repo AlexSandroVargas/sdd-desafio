@@ -52,60 +52,57 @@ Crie `docs/sessions/<NN>-<nome-da-tarefa>.md` contendo:
   trecho incremental para Markdown no formato pergunta/resposta. Se não
   estiver (flag de inicialização), transcreva o transcript diretamente.
 
-### 4. Commit e push
+### 4. Commit único e push
 
 1. Verifique se `log.md` ainda existe e `log-session.md` ainda não existe.
    Se essa condição for verdadeira, **renomeie** `log.md` para
    `log-session.md` e atualize as referências em `docs/sessions/NN-*.md`.
 
-2. Atualize `docs/sessions/log-session.md` conforme o passo 5.
+2. Execute `git add -A` para incluir todas as alterações pendentes, inclusive
+   os logs deixados em staging pela execução anterior e o arquivo da sessão atual.
 
-3. Execute `git add -A` para incluir todas as alterações pendentes da sessão.
-
-4. Se `docs/sessions/log-commit.md` estiver staged, remova-o do index com
-   `git reset docs/sessions/log-commit.md` (ele não deve ser commitado).
-
-5. Faça commit com a mensagem:
+3. Faça **exatamente um commit** com a mensagem:
 
    ```
    docs(sessions): <nome-da-tarefa>
    ```
 
-6. Faça push para o repositório remoto: `git push`.
+4. Faça push desse commit para o repositório remoto: `git push`.
 
-### 5. Atualizar log-session.md
+5. Não execute outro commit, `git commit --amend` ou outro push nesta execução.
+   Todas as alterações realizadas após o commit, inclusive as atualizações dos
+   logs nos passos 5 e 6, devem permanecer em staging até a próxima execução.
+
+### 5. Atualizar log-session.md após o push
 
 Arquivo: `docs/sessions/log-session.md`.
 
-- Se não existir, crie com cabeçalho `# Log de Sessões` e a tabela:
+Depois do commit e do push do passo 4, obtenha o hash criado e:
+
+- Se o arquivo não existir, crie com cabeçalho `# Log de Sessões` e a tabela:
 
   ```
   | Data | Hora | Tarefa | Commit | Link commit |
   |---|---|---|---|---|
   ```
 
-- Se existir, faça **append** de uma linha ao final (ordem cronológica):
+- Faça **append** de uma linha ao final (ordem cronológica):
 
   ```
   | <AAAA-MM-DD> | <HH:MM> | [<NN>-<tarefa>.md](<NN>-<tarefa>.md) | <hash curto do commit> | [link](<url-do-repo>/commit/<hash>) |
   ```
 
-Ordem de execução: escreva a linha do log, depois faça um **amend** ou inclua
-o `log-session.md` no mesmo commit do passo 4 — preferencial: gere o commit do
-arquivo de sessão primeiro para obter o hash, depois escreva o log e faça
-`git commit --amend --no-edit` incluindo o log. Alternativa simples aceitável:
-commite os dois arquivos juntos e use `git rev-parse --short HEAD` para o hash,
-registrando-o num segundo commit `docs(sessions): log <nome-da-tarefa>` — prefira
-a primeira opção (amend) para manter um commit por sessão.
+Não faça amend nem crie um segundo commit para registrar essa linha. Ela será
+incluída no commit da próxima execução da skill.
 
-### 6. Atualizar log-commit.md
+### 6. Atualizar log-commit.md após o push
 
 Arquivo: `docs/sessions/log-commit.md`.
 
 Regenere este arquivo a cada execução do `challenge-doc`, incluindo **todos os
-commits do repositório** (local e remoto). **Não commite este arquivo**: se ele
-fizer parte de um commit, o log teria que se referir a si mesmo, gerando
-recursão.
+commits do repositório** (local e remoto), inclusive o commit criado no passo 4.
+A versão atualizada será incluída no commit da próxima execução, evitando que o
+commit tente registrar a si mesmo.
 
 Formato:
 
@@ -124,14 +121,19 @@ Para preencher a coluna **Link commit**, descubra a URL do repositório remoto
 com `git remote get-url origin`, remova `.git` do final e monte o link como
 `<url>/commit/<hash>`.
 
-Após gerar `log-commit.md`, **não execute `git add` nem `git commit`** para ele.
+Após atualizar os dois logs, execute
+`git add docs/sessions/log-session.md docs/sessions/log-commit.md` para deixá-los
+em staging. **Não execute commit nem push novamente**; essas alterações serão
+incluídas somente na próxima execução da skill.
 
 ## Verificações antes de finalizar
 
 - [ ] Nome da tarefa foi fornecido pelo usuário (não inventado)
 - [ ] Número sequencial correto (último + 1)
 - [ ] Conteúdo incremental — sem duplicar o que já está na sessão NN-1
+- [ ] Exatamente um commit foi criado com a mensagem contendo o nome da tarefa
+- [ ] Esse único commit foi enviado por push
 - [ ] `log-session.md` tem uma linha por sessão, em ordem cronológica
 - [ ] `log-commit.md` existe e lista todos os commits com componentes
-- [ ] Commit existe e a mensagem contém o nome da tarefa
-- [ ] Push foi realizado
+- [ ] As atualizações dos dois logs estão em staging para a próxima execução
+- [ ] Nenhum amend, segundo commit ou segundo push foi executado

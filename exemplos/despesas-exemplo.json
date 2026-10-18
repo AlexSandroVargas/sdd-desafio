@@ -135,6 +135,24 @@
       "fornecedor": "Restaurante Tavola",
       "valor": 61.00,
       "tem_nota_fiscal": true
+    },
+    {
+      "id": "d-015",
+      "data": "2026-07-24",
+      "categoria": "hospedagem",
+      "descricao": "Hotel sem quantidade informada",
+      "fornecedor": "Hotel Central",
+      "valor": 400.00,
+      "tem_nota_fiscal": true
+    },
+    {
+      "id": "d-016",
+      "data": "2026-07-25",
+      "categoria": "alimentacao",
+      "descricao": "Refeicao sem nota de baixo valor",
+      "fornecedor": "Lanchonete Central",
+      "valor": 50.00,
+      "tem_nota_fiscal": false
     }
   ]
 }

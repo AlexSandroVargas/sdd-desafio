@@ -1,0 +1,189 @@
+{
+  "colaborador": {
+    "id": "c-0417",
+    "nome": "Marina Volpi",
+    "centro_custo": "CC-ENG-PLATAFORMA"
+  },
+  "periodo": {
+    "competencia": "2026-07",
+    "inicio": "2026-07-01",
+    "fim": "2026-07-31"
+  },
+  "resumo": {
+    "total_declarado": 2266.84,
+    "total_reembolsavel": 1246.43,
+    "total_nao_reembolsavel": 45.5,
+    "total_rejeitado": 974.91,
+    "quantidade_despesas": 16
+  },
+  "despesas": [
+    {
+      "id": "d-001",
+      "data": "2026-07-03",
+      "categoria": "alimentacao",
+      "valor_declarado": 72.5,
+      "valor_reembolsavel": 72.5,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-002",
+      "data": "2026-07-03",
+      "categoria": "alimentacao",
+      "valor_declarado": 38.0,
+      "valor_reembolsavel": 17.5,
+      "valor_nao_reembolsavel": 20.5,
+      "status": "parcial",
+      "motivo": "Limite aplicável excedido"
+    },
+    {
+      "id": "d-003",
+      "data": "2026-07-06",
+      "categoria": "transporte_urbano",
+      "valor_declarado": 100.0,
+      "valor_reembolsavel": 100.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-004",
+      "data": "2026-07-06",
+      "categoria": "transporte_urbano",
+      "valor_declarado": 100.01,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Nota fiscal obrigatória acima de R$ 100,00 ausente"
+    },
+    {
+      "id": "d-005",
+      "data": "2026-07-07",
+      "categoria": "coworking",
+      "valor_declarado": 89.0,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Categoria fora da política"
+    },
+    {
+      "id": "d-006",
+      "data": "2026-07-09",
+      "categoria": "alimentacao",
+      "valor_declarado": 54.9,
+      "valor_reembolsavel": 54.9,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-007",
+      "data": "2026-07-09",
+      "categoria": "alimentacao",
+      "valor_declarado": 54.9,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Despesa duplicada"
+    },
+    {
+      "id": "d-008",
+      "data": "2026-04-15",
+      "categoria": "alimentacao",
+      "valor_declarado": 41.0,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Fora do período de competência"
+    },
+    {
+      "id": "d-009",
+      "data": "2026-07-11",
+      "categoria": "transporte_urbano",
+      "valor_declarado": -45.0,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "estorno",
+      "motivo": "Estorno reduz o total reembolsável do período"
+    },
+    {
+      "id": "d-010",
+      "data": "2026-07-14",
+      "categoria": "hospedagem",
+      "valor_declarado": 480.0,
+      "valor_reembolsavel": 480.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-011",
+      "data": "2026-07-15",
+      "categoria": "alimentacao",
+      "valor_declarado": 33.333,
+      "valor_reembolsavel": 33.33,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-012",
+      "data": "2026-07-18",
+      "categoria": "alimentacao",
+      "valor_declarado": 47.2,
+      "valor_reembolsavel": 47.2,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-013",
+      "data": "2026-07-22",
+      "categoria": "hospedagem",
+      "valor_declarado": 690.0,
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Nota fiscal obrigatória acima de R$ 100,00 ausente"
+    },
+    {
+      "id": "d-014",
+      "data": "2026-07-31",
+      "categoria": "alimentacao",
+      "valor_declarado": 61.0,
+      "valor_reembolsavel": 61.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "d-015",
+      "data": "2026-07-24",
+      "categoria": "hospedagem",
+      "valor_declarado": 400.0,
+      "valor_reembolsavel": 375.0,
+      "valor_nao_reembolsavel": 25.0,
+      "status": "parcial",
+      "motivo": "Limite aplicável excedido"
+    },
+    {
+      "id": "d-016",
+      "data": "2026-07-25",
+      "categoria": "alimentacao",
+      "valor_declarado": 50.0,
+      "valor_reembolsavel": 50.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    }
+  ],
+  "alertas": [
+    {
+      "tipo": "duplicata",
+      "despesas": [
+        "d-007"
+      ]
+    }
+  ]
+}

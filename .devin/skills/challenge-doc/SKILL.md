@@ -5,6 +5,9 @@ description: Documenta a sessão atual do desafio SDD em docs/sessions com numer
 
 # challenge-doc — Registro de sessão do desafio SDD
 
+> **Nota:** existe uma cópia desta skill em `docs/skills/challenge-doc.md`.
+> Sempre que este arquivo for alterado, mantenha a cópia sincronizada.
+
 Documenta a sessão de trabalho atual seguindo as regras de rastreabilidade do
 desafio (`constitution.sdd-desafio.md`, princípio VII: evidência ou não aconteceu).
 

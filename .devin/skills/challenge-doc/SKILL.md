@@ -71,14 +71,14 @@ Arquivo: `docs/sessions/log-session.md`.
 - Se não existir, crie com cabeçalho `# Log de Sessões` e a tabela:
 
   ```
-  | Data | Hora | Tarefa | Commit |
-  |---|---|---|---|
+  | Data | Hora | Tarefa | Commit | Link commit |
+  |---|---|---|---|---|
   ```
 
 - Se existir, faça **append** de uma linha ao final (ordem cronológica):
 
   ```
-  | <AAAA-MM-DD> | <HH:MM> | [<NN>-<tarefa>.md](<NN>-<tarefa>.md) | <hash curto do commit> |
+  | <AAAA-MM-DD> | <HH:MM> | [<NN>-<tarefa>.md](<NN>-<tarefa>.md) | <hash curto do commit> | [link](<url-do-repo>/commit/<hash>) |
   ```
 
 Ordem de execução: escreva a linha do log, depois faça um **amend** ou inclua
@@ -103,13 +103,17 @@ Formato:
 ```markdown
 # Log de Commits
 
-| Data | Hora | Descrição | Commit | Componentes |
-|---|---|---|---|---|
-| <AAAA-MM-DD> | <HH:MM> | <mensagem do commit> | <hash curto> | <arquivo1>; <arquivo2>; ... |
+| Data | Hora | Descrição | Commit | Link commit | Componentes |
+|---|---|---|---|---|---|
+| <AAAA-MM-DD> | <HH:MM> | <mensagem do commit> | <hash curto> | [link](<url-do-repo>/commit/<hash>) | <arquivo1>; <arquivo2>; ... |
 ```
 
 Para preencher a coluna **Componentes**, use os arquivos afetados por cada
 commit (saída de `git show --name-only <hash>`), separados por ponto e vírgula.
+
+Para preencher a coluna **Link commit**, descubra a URL do repositório remoto
+com `git remote get-url origin`, remova `.git` do final e monte o link como
+`<url>/commit/<hash>`.
 
 Após gerar `log-commit.md`, **não execute `git add` nem `git commit`** para ele.
 

@@ -1,6 +1,6 @@
 # Spec — Motor de Cálculo de Reembolso
 
-**Versão:** 1.0 · **Status:** rascunho · **Última alteração:** 2026-10-16
+**Versão:** 1.1 · **Status:** rascunho · **Última alteração:** 2026-10-18
 
 > **Regra de ouro deste arquivo:** ele descreve o QUÊ e o PORQUÊ. Nenhuma linha
 > aqui pode citar linguagem, biblioteca, classe, função ou estrutura de pasta.
@@ -138,18 +138,25 @@ Cada regra recebe um ID (`RN-001`, ...). As tasks vão referenciar esses IDs.
 
 **Regra:** O valor reembolsável das despesas da categoria `alimentacao` em uma
 mesma data é limitado a R$ 60,00 por dia. Quando o colaborador está em viagem,
-o limite sobe para R$ 90,00. O excedente é não reembolsável e distribuído
-proporcionalmente entre as despesas do dia.
+o limite sobe para R$ 90,00. As despesas do dia são ordenadas por valor
+declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
+sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
+teto restante; a primeira que não couber integralmente recebe o valor restante
+como reembolso parcial; as demais são rejeitadas.
 **Origem:** política do RH, itens 1 e 6 (com AMB-001, AMB-003 e AMB-005)
-**Aceite:** duas refeições de R$ 72,50 e R$ 38,00 no mesmo dia → total declarado
-R$ 110,50, limite R$ 60,00; a primeira recebe R$ 39,37 e a segunda R$ 20,63.
+**Aceite:** duas refeições de R$ 72,50 e R$ 38,00 no mesmo dia → ordenadas como
+R$ 72,50 e R$ 38,00; limite R$ 60,00; a primeira recebe R$ 60,00 (parcial) e a
+segunda é rejeitada.
 
 ### RN-002 — Limite diário de transporte urbano
 
 **Regra:** O valor reembolsável das despesas da categoria `transporte_urbano` em
 uma mesma data é limitado a R$ 80,00 por dia. Quando o colaborador está em
-viagem, o limite sobe para R$ 120,00. O excedente é não reembolsável e
-proporcionalmente distribuído.
+viagem, o limite sobe para R$ 120,00. As despesas do dia são ordenadas por valor
+declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
+sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
+teto restante; a primeira que não couber integralmente recebe o valor restante
+como reembolso parcial; as demais são rejeitadas.
 **Origem:** política do RH, itens 2 e 6 (com AMB-001, AMB-003 e AMB-005)
 **Aceite:** uma corrida de R$ 100,00 no dia → reembolsável R$ 80,00, não
 reembolsável R$ 20,00.
@@ -273,11 +280,17 @@ inaplicável e a política perde o sentido para viagens.
 excedente, ou recusar o item inteiro? E se várias despesas do mesmo dia
 ultrapassarem o limite em conjunto, como se distribui o valor do teto?
 **Decisão:** O sistema reembolsa até o limite aplicável e descarta o excedente;
-não recusa o item inteiro. No agrupamento diário, o teto é distribuído
-proporcionalmente entre as despesas elegíveis do dia.
+não recusa o item inteiro. No agrupamento diário, as despesas são ordenadas por
+valor declarado decrescente (empate preserva a ordem de entrada). O teto é
+aplicado sequencialmente: cada despesa é reembolsada integralmente enquanto
+couber no teto restante; a primeira que não couber integralmente recebe o valor
+restante como reembolso parcial; todas as demais despesas do agrupamento são
+rejeitadas. Para hospedagem, que não usa agrupamento diário, mantém-se o limite
+por diária individual.
 **Justificativa:** A palavra "parcialmente" implica pagamento parcial, não
-recusa total; a distribuição proporcional evita escolha arbitrária de qual item
-é pago primeiro.
+recusa total; ordenar por valor decrescente prioriza as despesas maiores e
+torna a aplicação do teto determinística, auditável e previsível para o
+usuário.
 **Regra afetada:** RN-001, RN-002, RN-003
 
 ### AMB-004 — "acima de R$ 100" na nota fiscal
@@ -376,8 +389,8 @@ mais comum e evita viés sistemático para baixo ou para cima.
 
 | Caso | Entrada | Comportamento esperado | Regra |
 |---|---|---|---|
-| Duas refeições no mesmo dia | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data | Total reembolsável limitado a R$ 60,00; divisão proporcional | RN-001 |
-| Duas refeições no mesmo dia em viagem | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data, com hospedagem no período | Limite diário de R$ 90,00; total declarado R$ 110,50 → reembolso parcial proporcional | RN-001, RN-005 |
+| Duas refeições no mesmo dia | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data | Ordenadas R$ 72,50 e R$ 38,00; limite R$ 60,00; primeira recebe R$ 60,00 (parcial) e segunda é rejeitada | RN-001 |
+| Duas refeições no mesmo dia em viagem | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data, com hospedagem no período | Limite R$ 90,00; primeira recebe R$ 72,50; segunda recebe R$ 17,50 (parcial); excedente R$ 20,50 rejeitado | RN-001, RN-005 |
 | Transporte exatamente no limiar da nota | `transporte_urbano` de R$ 100,00 sem nota | Reembolsável dentro do limite diário, pois R$ 100,00 não exige nota | RN-002, RN-004 |
 | Transporte um centavo acima do limiar | `transporte_urbano` de R$ 100,01 sem nota | Rejeitado por falta de nota | RN-004 |
 | Hospedagem com várias diárias | `hospedagem` de R$ 480,00 descrita como "2 diárias" | Limite R$ 500,00; reembolsável R$ 480,00 | RN-003 |
@@ -421,7 +434,8 @@ O sistema está pronto quando:
 - [ ] O total reembolsável do período é a soma dos valores reembolsáveis das
   despesas, menos os estornos.
 - [ ] Despesas acima do limite diário são parcialmente reembolsadas até o
-  limite, sem recusar o item inteiro.
+  limite; a despesa que faz o teto ser atingido recebe o valor restante, e as
+  demais despesas do mesmo agrupamento são rejeitadas.
 - [ ] Despesas acima de R$ 100,00 sem nota fiscal são inteiramente recusadas.
 - [ ] Duplicatas de mesma data, categoria, valor e fornecedor são recusadas,
   mantendo apenas a primeira.

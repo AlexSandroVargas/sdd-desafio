@@ -7,3 +7,4 @@
 | 2026-10-18 | 14:14 | [04-speckit-plan.md](04-speckit-plan.md) | 1780978 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/1780978) |
 | 2026-10-18 | 15:06 | [05-speckit-tasks-analyze.md](05-speckit-tasks-analyze.md) | 58e4873 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/58e4873) |
 | 2026-10-18 | 15:41 | [06-speckit-implement.md](06-speckit-implement.md) | 0144b33 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/0144b33) |
+| 2026-10-18 | 21:02 | [07-ajuste-rn-005-viagem.md](07-ajuste-rn-005-viagem.md) | 2c94789 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/2c94789962b0783ec9e76d0603d64aa74d4dd0db) |

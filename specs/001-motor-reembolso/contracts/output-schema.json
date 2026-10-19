@@ -57,11 +57,12 @@
         "data": { "type": "string" },
         "categoria": { "type": "string" },
         "valor_declarado": { "type": "number" },
+        "moeda": { "type": "string", "description": "ISO 4217 code of the declared amount; omitted when BRL." },
         "valor_reembolsavel": { "type": "number" },
         "valor_nao_reembolsavel": { "type": "number" },
         "status": {
           "type": "string",
-          "enum": ["aprovado", "parcial", "rejeitado", "estorno"]
+          "enum": ["aprovado", "parcial", "nao_reembolsavel", "rejeitado", "estorno"]
         },
         "motivo": { "type": "string" }
       },

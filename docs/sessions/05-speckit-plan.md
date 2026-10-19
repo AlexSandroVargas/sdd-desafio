@@ -1,9 +1,9 @@
 # Sessão — speckit-plan
 
-- **Sequencial:** 04
+- **Sequencial:** 05
 - **Data:** 2026-10-18
 - **Branch:** `001-motor-reembolso`
-- **Incremental a partir de:** `03-speckit-specify.md` (contém apenas o que ocorreu após o último evento daquela sessão)
+- **Incremental a partir de:** `04-ajuste-AMB-003.md` (contém apenas o que ocorreu após o último evento daquela sessão)
 
 ---
 
@@ -83,4 +83,4 @@ Solicitou o nome da tarefa para registro da sessão.
 > sim, "speckit-plan"
 
 ### Devin
-Normalizou o nome para `speckit-plan`, determinou o sequencial `04`, gerou `docs/sessions/04-speckit-plan.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log-session.md`, executou commit `docs(sessions): speckit-plan` e fez push.
+Normalizou o nome para `speckit-plan`, determinou o sequencial `05`, gerou `docs/sessions/05-speckit-plan.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log-session.md`, executou commit `docs(sessions): speckit-plan` e fez push.

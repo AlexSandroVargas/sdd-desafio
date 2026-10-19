@@ -56,7 +56,8 @@ de negócio.
 | `categoria` | string | sim | Categoria da despesa |
 | `descricao` | string | sim | Descrição livre; na hospedagem pode indicar `internacional`, check-in, checkout e diárias para determinar os dias de viagem |
 | `fornecedor` | string | sim | Nome do fornecedor |
-| `valor` | número | sim | Valor declarado da despesa |
+| `valor` | número | sim | Valor declarado da despesa na moeda informada |
+| `moeda` | string | não | Código ISO 4217 da moeda da despesa; default `BRL` |
 | `tem_nota_fiscal` | boolean | sim | Indica se há nota fiscal |
 
 **Validações:**
@@ -80,7 +81,7 @@ Representa o resultado do cálculo para uma única despesa.
 | `valor_declarado` | número | Valor declarado original, sem alteração |
 | `valor_reembolsavel` | número | Valor que será reembolsado |
 | `valor_nao_reembolsavel` | número | Parte do valor declarado que não será reembolsada |
-| `status` | string | `aprovado`, `parcial`, `rejeitado` ou `estorno` |
+| `status` | string | `aprovado`, `parcial`, `nao_reembolsavel`, `rejeitado` ou `estorno` |
 | `motivo` | string | Justificativa da decisão |
 
 **Regras derivadas da spec:**
@@ -89,9 +90,11 @@ Representa o resultado do cálculo para uma única despesa.
 - Valores negativos sempre têm `valor_reembolsavel = 0`, `valor_nao_reembolsavel = 0`
   e `status = estorno`.
 - `status = rejeitado` quando a despesa é invalidada por categoria, período,
-  nota fiscal ou duplicata.
+  nota fiscal, duplicata ou cotação cambial ausente.
 - `status = parcial` quando o valor reembolsável é maior que zero, mas menor
   que o valor declarado.
+- `status = nao_reembolsavel` quando a categoria é válida para o centro de custo,
+  mas o valor reembolsável é zero (ex.: hospedagem com limite zero).
 - `status = aprovado` quando o valor reembolsável é igual ao valor declarado.
 - Todos os valores financeiros são arredondados para duas casas decimais
   (RN-010).
@@ -106,7 +109,7 @@ Agregação dos valores do período.
 |---|---|---|
 | `total_declarado` | número | Soma dos valores declarados de todas as despesas |
 | `total_reembolsavel` | número | Soma dos valores efetivamente reembolsáveis |
-| `total_nao_reembolsavel` | número | Soma dos valores acima dos limites, excedentes não pagos |
+| `total_nao_reembolsavel` | número | Soma dos valores acima dos limites (excedentes não pagos) e dos valores de despesas com status `nao_reembolsavel` |
 | `total_rejeitado` | número | Soma dos valores de despesas inteiramente recusadas |
 | `quantidade_despesas` | número | Quantidade total de despesas processadas |
 
@@ -116,7 +119,7 @@ Agregação dos valores do período.
 - `total_reembolsavel` é a soma dos `valor_reembolsavel` das despesas, menos o
   valor absoluto dos estornos (RN-009).
 - `total_nao_reembolsavel` é a soma dos `valor_nao_reembolsavel` das despesas
-  parciais.
+  com status `parcial` ou `nao_reembolsavel`.
 - `total_rejeitado` é a soma dos `valor_declarado` das despesas com
   `status = rejeitado`.
 - `quantidade_despesas` é a quantidade de itens no array `despesas` da entrada.
@@ -138,6 +141,47 @@ Alerta transversal sobre o conjunto de despesas.
 - Atualmente o único tipo previsto é `duplicata` (RN-006).
 - Lista os IDs das despesas que foram detectadas como duplicatas (exceto a
   primeira ocorrência, que é processada normalmente).
+
+---
+
+### 7. Política de Reembolso
+
+Tabela de limites por centro de custo, mantida pelo financeiro em arquivo externo.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `versao` | string | Versão da política (ex.: `v4`) |
+| `vigencia` | string | Data de início de vigência no formato `YYYY-MM-DD` |
+| `moeda_base` | string | Moeda dos limites (sempre `BRL`) |
+| `padrao` | objeto | Limites para centros de custo sem tabela própria |
+| `centros_custo` | objeto | Mapa de centro de custo para tabela de limites |
+| `nota_fiscal_obrigatoria_acima_de` | número | Limiar de nota fiscal em BRL |
+| `acrescimo_em_viagem_percentual` | número | Percentual de aumento em dias de viagem |
+
+**Regras derivadas da spec:**
+- Cada centro de custo em `centros_custo` contém um mapa de categoria para
+  `{ limite, periodicidade }`.
+- Centros sem entrada usam o bloco `padrao` (AMB-011).
+- Categorias com `limite = 0` são válidas, mas não reembolsáveis (AMB-012, AMB-013).
+
+---
+
+### 8. Câmbio
+
+Tabela de taxas de câmbio por data e moeda.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `moeda_base` | string | Moeda base das cotações (sempre `BRL`) |
+| `fonte` | string | Fonte das cotações |
+| `observacao` | string | Observações sobre a publicação das taxas |
+| `taxas` | objeto | Mapa de data (`YYYY-MM-DD`) para taxas por moeda |
+
+**Regras derivadas da spec:**
+- A taxa de uma moeda em uma data é usada para converter o valor declarado para
+  BRL (RN-011).
+- Se a data ou a moeda não estiverem presentes em `taxas`, a despesa é rejeitada
+  (RN-012).
 
 ---
 
@@ -169,6 +213,7 @@ O campo `status` do `ResultadoDaDespesa` pode assumir os seguintes valores:
 |---|---|
 | `aprovado` | Valor declarado reembolsável integralmente |
 | `parcial` | Parte do valor declarado é reembolsável |
+| `nao_reembolsavel` | Categoria válida, mas valor declarado inteiro não é reembolsável |
 | `rejeitado` | Valor declarado inteiramente recusado |
 | `estorno` | Valor declarado negativo; reduz o total reembolsável |
 
@@ -188,3 +233,5 @@ O campo `status` do `ResultadoDaDespesa` pode assumir os seguintes valores:
 | RN-008 | `Despesa` / `ResultadoDaDespesa` | Rejeição de categorias fora da política |
 | RN-009 | `Despesa` / `Resumo` | Estorno reduz total reembolsável |
 | RN-010 | `ResultadoDaDespesa` / `Resumo` | Arredondamento half-up para centavos |
+| RN-011 | `Despesa` / `ResultadoDaDespesa` | Conversão de moeda estrangeira para BRL |
+| RN-012 | `Despesa` / `ResultadoDaDespesa` | Rejeição por cotação cambial ausente |

@@ -2,6 +2,32 @@
 
 Ordem cronológica inversa: a mais recente primeiro.
 
+## D-005 — Adoção da Política de Reembolso v4 · `2026-10-18`
+
+**Gatilho:** Comunicado do RH no envelope `exemplos/envelope/00-ENVELOPE-LACRADO.md`
+revisou a política para vigência imediata, retroativa à competência atual.
+
+**Decisão:** Atualizada a `specs/001-motor-reembolso/spec.md` para refletir a
+política v4: limites por centro de custo; nova categoria `representacao`;
+hospedagem não reembolsável em determinados centros recebe status
+`nao_reembolsavel`; despesas em moeda estrangeira com conversão pela taxa da
+data; e rejeição quando a cotação está ausente. A fila de aprovação manual
+(item C) permanece fora de escopo.
+
+**Por quê:** A política deixa de ser única e passa a ser lida de arquivo externo.
+A spec precisava incorporar as novas ambiguidades antes de qualquer código.
+
+**O que isso invalidou:** Limites constantes da v3, suposição de despesas apenas
+em BRL, lista fixa de categorias reembolsáveis, e a suposição de que hospedagem
+sempre é reembolsável.
+
+**Tasks afetadas:** T007, T012, T023–T029, T033–T036; novas tasks para política
+externa e câmbio.
+
+**Custo:** Atualização de spec, DECISIONS.md e tasks.md; novos módulos e testes.
+
+---
+
 ## D-004 — Pipeline mantém dicionários validados · `2026-10-18`
 
 **Gatilho:** A convergência identificou que `src/modelos.py` existe, mas o motor

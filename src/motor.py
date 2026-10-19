@@ -2,17 +2,24 @@ from datetime import date
 from decimal import Decimal
 
 from .regras.arredondamento import arredondar, decimal
+from .regras.cambio import Cambio
 from .regras.categoria import normalizar_categoria
+from .regras.config import Configuracao
 from .regras.duplicata import chave_duplicata
 from .regras.estorno import eh_estorno
 from .regras.limites import aplicar_limites
+from .regras.moeda import converter_para_brl, moeda_invalida
 from .regras.nota_fiscal import nota_fiscal_valida
 from .regras.periodo import dentro_do_periodo
+from .regras.politica import Politica
 from .regras.viagem import dias_em_viagem
 
 
 class ErroEstrutural(ValueError):
     pass
+
+
+MOEDA_PADRAO = "BRL"
 
 
 def _exigir_campos(objeto: dict, campos: tuple[str, ...], contexto: str) -> None:
@@ -50,12 +57,14 @@ def validar_entrada(entrada: dict) -> None:
 def _erro_estrutural_despesa(despesa: object, indice: int, ids: set[str]) -> str | None:
     contexto = f"despesas[{indice}]"
     campos = ("id", "data", "categoria", "descricao", "fornecedor", "valor", "tem_nota_fiscal")
+    campos_opcionais = ("moeda",)
+    campos_permitidos = campos + campos_opcionais
     if not isinstance(despesa, dict):
         return f"{contexto} deve ser um objeto"
     ausentes = [campo for campo in campos if campo not in despesa]
     if ausentes:
         return f"Campo obrigatório ausente em {contexto}: {', '.join(ausentes)}"
-    extras = [campo for campo in despesa if campo not in campos]
+    extras = [campo for campo in despesa if campo not in campos_permitidos]
     if extras:
         return f"Campo não permitido em {contexto}: {', '.join(extras)}"
     if not all(isinstance(despesa[campo], str) for campo in ("id", "data", "categoria", "descricao", "fornecedor")):
@@ -69,6 +78,8 @@ def _erro_estrutural_despesa(despesa: object, indice: int, ids: set[str]) -> str
         return f"{contexto} contém data ou valor inválido"
     if not isinstance(despesa["tem_nota_fiscal"], bool):
         return f"{contexto}.tem_nota_fiscal deve ser booleano"
+    if "moeda" in despesa and not isinstance(despesa["moeda"], str):
+        return f"{contexto}.moeda deve ser textual"
     ids.add(despesa["id"])
     return None
 
@@ -89,17 +100,35 @@ def _rejeitado_estrutural(despesa: object, indice: int, motivo: str) -> dict:
     }
 
 
-def _rejeitado(despesa: dict, categoria: str, motivo: str) -> dict:
+def _rejeitado(despesa: dict, categoria: str, motivo: str, moeda: str = MOEDA_PADRAO) -> dict:
     return {
         "id": despesa["id"], "data": despesa["data"], "categoria": categoria,
-        "valor_declarado": despesa["valor"], "valor_reembolsavel": 0.0,
+        "valor_declarado": despesa["valor"], "moeda": moeda,
+        "valor_reembolsavel": 0.0,
         "valor_nao_reembolsavel": 0.0, "status": "rejeitado", "motivo": motivo,
     }
 
 
-def processar(entrada: dict) -> dict:
+def _nao_reembolsavel(despesa: dict, categoria: str, motivo: str, moeda: str = MOEDA_PADRAO) -> dict:
+    return {
+        "id": despesa["id"], "data": despesa["data"], "categoria": categoria,
+        "valor_declarado": despesa["valor"], "moeda": moeda,
+        "valor_reembolsavel": 0.0,
+        "valor_nao_reembolsavel": float(arredondar(decimal(despesa["valor"]))),
+        "status": "nao_reembolsavel", "motivo": motivo,
+    }
+
+
+def processar(entrada: dict, politica: Politica | None = None, cambio: Cambio | None = None) -> dict:
     validar_entrada(entrada)
     periodo = entrada["periodo"]
+    centro_custo = entrada["colaborador"]["centro_custo"]
+    if politica is None or cambio is None:
+        configuracao = Configuracao()
+        if politica is None:
+            politica = configuracao.politica
+        if cambio is None:
+            cambio = Cambio(str(configuracao._caminho_cambio))
     resultados: dict[int, dict] = {}
     elegiveis = []
     vistos = set()
@@ -111,21 +140,26 @@ def processar(entrada: dict) -> dict:
         if erro:
             resultados[indice] = _rejeitado_estrutural(original, indice, erro)
             continue
+        moeda = original.get("moeda", MOEDA_PADRAO)
         categoria = original["categoria"].lower()
-        normalizada = normalizar_categoria(original["categoria"])
+        normalizada = normalizar_categoria(original["categoria"], centro_custo, politica)
         if normalizada is None:
-            resultados[indice] = _rejeitado(original, categoria, "Categoria fora da política")
+            resultados[indice] = _rejeitado(original, categoria, "Categoria fora da política", moeda)
             continue
         if not dentro_do_periodo(original["data"], periodo):
-            resultados[indice] = _rejeitado(original, normalizada, "Fora do período de competência")
+            resultados[indice] = _rejeitado(original, normalizada, "Fora do período de competência", moeda)
             continue
-        if not nota_fiscal_valida(original["valor"], original["tem_nota_fiscal"]):
-            resultados[indice] = _rejeitado(original, normalizada, "Nota fiscal obrigatória acima de R$ 100,00 ausente")
+        if moeda_invalida(original, cambio):
+            resultados[indice] = _rejeitado(original, normalizada, "Moeda ou data sem cotação disponível", moeda)
             continue
-        despesa = dict(original, categoria=normalizada, indice=indice)
+        valor_brl = converter_para_brl(original, cambio)
+        if not nota_fiscal_valida(valor_brl, original["tem_nota_fiscal"]):
+            resultados[indice] = _rejeitado(original, normalizada, "Nota fiscal obrigatória acima de R$ 100,00 ausente", moeda)
+            continue
+        despesa = dict(original, categoria=normalizada, indice=indice, valor_brl=valor_brl, moeda=moeda)
         chave = chave_duplicata(despesa)
         if chave in vistos:
-            resultados[indice] = _rejeitado(original, normalizada, "Despesa duplicada")
+            resultados[indice] = _rejeitado(original, normalizada, "Despesa duplicada", moeda)
             duplicatas.append(original["id"])
             continue
         vistos.add(chave)
@@ -133,27 +167,22 @@ def processar(entrada: dict) -> dict:
             estornos += abs(decimal(original["valor"]))
             resultados[indice] = {
                 "id": original["id"], "data": original["data"], "categoria": normalizada,
-                "valor_declarado": original["valor"], "valor_reembolsavel": 0.0,
+                "valor_declarado": original["valor"], "moeda": moeda,
+                "valor_reembolsavel": 0.0,
                 "valor_nao_reembolsavel": 0.0, "status": "estorno",
                 "motivo": "Estorno reduz o total reembolsável do período",
             }
             continue
         elegiveis.append(despesa)
-    reembolsos = aplicar_limites(elegiveis, dias_em_viagem(elegiveis, periodo))
+    calculados = aplicar_limites(elegiveis, dias_em_viagem(elegiveis, periodo), centro_custo, politica)
     for despesa in elegiveis:
-        declarado = decimal(despesa["valor"])
-        reembolsavel = reembolsos[despesa["id"]]
-        if reembolsavel == arredondar(declarado):
-            status, motivo, nao_reembolsavel = "aprovado", "Despesa aprovada", Decimal("0")
-        elif reembolsavel > 0:
-            status, motivo = "parcial", "Limite aplicável excedido"
-            nao_reembolsavel = arredondar(declarado - reembolsavel)
-        else:
-            status, motivo, nao_reembolsavel = "rejeitado", "Limite aplicável esgotado", Decimal("0")
+        calculado = calculados[despesa["id"]]
         resultados[despesa["indice"]] = {
             "id": despesa["id"], "data": despesa["data"], "categoria": despesa["categoria"],
-            "valor_declarado": despesa["valor"], "valor_reembolsavel": float(reembolsavel),
-            "valor_nao_reembolsavel": float(nao_reembolsavel), "status": status, "motivo": motivo,
+            "valor_declarado": despesa["valor"], "moeda": despesa["moeda"],
+            "valor_reembolsavel": float(calculado["valor_reembolsavel"]),
+            "valor_nao_reembolsavel": float(calculado["valor_nao_reembolsavel"]),
+            "status": calculado["status"], "motivo": calculado["motivo"],
         }
     despesas = [resultados[indice] for indice in range(len(entrada["despesas"]))]
     total_reembolsavel = sum((decimal(item["valor_reembolsavel"]) for item in despesas), Decimal("0")) - estornos

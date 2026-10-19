@@ -1,10 +1,10 @@
 # Sessão — speckit-implement
 
-- **Sequencial:** 06
+- **Sequencial:** 07
 - **Data:** 2026-10-18
 - **Hora:** 15:41
 - **Branch:** `main`
-- **Incremental a partir de:** `05-speckit-tasks-analyze.md`
+- **Incremental a partir de:** `06-speckit-tasks-analyze.md`
 
 ---
 
@@ -55,4 +55,4 @@ Solicitou o nome obrigatório para a execução de `challenge-doc`.
 > speckit-implement
 
 ### Devin
-Normalizou o nome para `speckit-implement`, determinou o sequencial `06` e iniciou o registro desta sessão conforme a política de commit único.
+Normalizou o nome para `speckit-implement`, determinou o sequencial `07` e iniciou o registro desta sessão conforme a política de commit único.

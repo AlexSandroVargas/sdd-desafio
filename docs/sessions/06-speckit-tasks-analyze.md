@@ -1,9 +1,9 @@
 # Sessão — speckit-tasks-analyze
 
-- **Sequencial:** 05
+- **Sequencial:** 06
 - **Data:** 2026-10-18
 - **Branch:** `001-motor-reembolso`
-- **Incremental a partir de:** `04-speckit-plan.md`
+- **Incremental a partir de:** `05-speckit-plan.md`
 
 ---
 
@@ -105,4 +105,4 @@ Solicitou o nome da tarefa para registro da sessão.
 > speckit-tasks-analyze
 
 ### Devin
-Normalizou o nome para `speckit-tasks-analyze`, determinou o sequencial `05`, gerou `docs/sessions/05-speckit-tasks-analyze.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log-session.md`, executou commit `docs(sessions): speckit-tasks-analyze` e fez push.
+Normalizou o nome para `speckit-tasks-analyze`, determinou o sequencial `06`, gerou `docs/sessions/06-speckit-tasks-analyze.md` com o conteúdo incremental desta sessão, atualizou `docs/sessions/log-session.md`, executou commit `docs(sessions): speckit-tasks-analyze` e fez push.

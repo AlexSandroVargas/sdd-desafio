@@ -119,7 +119,10 @@ src/
 │   ├── estorno.py      # RN-009
 │   ├── viagem.py       # RN-005
 │   ├── limites.py      # RN-001, RN-002, RN-003
-│   └── arredondamento.py  # RN-010
+│   ├── arredondamento.py  # RN-010
+│   ├── politica.py     # carregamento da política v4
+│   ├── cambio.py       # carregamento das taxas de câmbio
+│   └── moeda.py        # RN-011, RN-012
 └── modelos.py          # dataclasses de entrada/saída
 
 tests/
@@ -132,7 +135,10 @@ tests/
 │   ├── test_estorno.py
 │   ├── test_viagem.py
 │   ├── test_limites.py
-│   └── test_arredondamento.py
+│   ├── test_arredondamento.py
+│   ├── test_politica.py
+│   ├── test_cambio.py
+│   └── test_moeda.py
 └── test_motor.py
 ```
 
@@ -145,18 +151,43 @@ tests/
 
 ## R-007 — Representação da política de limites
 
-**Decision:** Constantes em um módulo Python (`regras/config.py`) com função
-para aplicar o fator de viagem.
+**Decision:** Política de limites lida de arquivo JSON externo
+(`exemplos/envelope/politica-v4.json`), com módulo `regras/politica.py`
+expondo `limites_do_centro(centro_custo)`.
 
 **Rationale:**
-- Limites são valores de configuração de negócio, mas ainda pequenos o suficiente
-  para não exigir arquivo externo.
-- Centralizar facilita alterações no Dia 2 (mudança de requisito).
-- A função de ampliação por viagem encapsula o fator 1.5 em um único lugar.
+- A política v4 exige explicitamente que limites variem por centro de custo e
+  sejam mantidos pelo financeiro fora do código.
+- O arquivo JSON segue o formato fornecido no envelope lacrado.
+- A função de lookup encapsula o fallback para o bloco `padrao` quando o centro
+  não tem tabela própria (AMB-011).
 
 **Alternatives considered:**
-- Arquivo YAML/JSON externo: adiciona complexidade de parse sem ganho imediato.
+- Constantes em `regras/config.py`: válido para a v3, mas não atende mais ao
+  requisito de limites por centro de custo.
+- Arquivo YAML externo: equivalência funcional, mas o desafio fornece o formato
+  em JSON.
 - Hard-coded espalhado: dificulta manutenção e testes.
+
+---
+
+## R-009 — Conversão de moeda estrangeira
+
+**Decision:** Taxas de câmbio lidas de arquivo JSON externo
+(`exemplos/envelope/cambio.json`), com módulo `regras/cambio.py` expondo
+`cotacao(data, moeda)` e `regras/moeda.py` realizando a conversão.
+
+**Rationale:**
+- A v4 introduz despesas em moeda estrangeira com conversão pela taxa da data.
+- O arquivo fornecido publica taxas apenas em dias úteis bancários.
+- Centralizar a conversão permite rejeitar despesas sem cotação de forma
+  previsível (RN-012).
+
+**Alternatives considered:**
+- Consumir API externa de câmbio: adicionaria dependência de rede e complexidade.
+- Hard-code taxas no código: impossibilitaria atualização pelo financeiro.
+- Interpolar taxas de datas adjacentes: rejeitado porque não há respaldo na
+  política (AMB-014).
 
 ---
 

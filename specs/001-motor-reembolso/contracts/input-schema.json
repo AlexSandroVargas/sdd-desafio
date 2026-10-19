@@ -55,6 +55,11 @@
         "descricao": { "type": "string" },
         "fornecedor": { "type": "string" },
         "valor": { "type": "number" },
+        "moeda": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Código ISO 4217 da moeda; quando ausente, assume-se BRL"
+        },
         "tem_nota_fiscal": { "type": "boolean" }
       },
       "additionalProperties": true

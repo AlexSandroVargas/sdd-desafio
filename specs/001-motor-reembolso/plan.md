@@ -49,8 +49,8 @@ template; this plan uses the root constitution as authoritative.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| **I. Spec is the source of truth** | PASS | No business rules were invented in this plan; every decision maps to `RN-001`..`RN-010` from `spec.md`. Technical choices (Python, Decimal, pytest) are implementation details, not rules. |
-| **II. Ambiguity is the work** | PASS | The spec already documents 10 ambiguities (`AMB-001`..`AMB-010`) with explicit decisions and business justifications. |
+| **I. Spec is the source of truth** | PASS | No business rules were invented in this plan; every decision maps to `RN-001`..`RN-012` from `spec.md`. Technical choices (Python, Decimal, pytest) are implementation details, not rules. |
+| **II. Ambiguity is the work** | PASS | The spec documents 15 ambiguities (`AMB-001`..`AMB-015`) with explicit decisions and business justifications. |
 | **III. Traceability chain** | PASS | Plan proposes one module per rule (`src/regras/`) and one test module per rule (`tests/test_regras/`), making `spec → code → test` explicit. |
 | **IV. No business rule only in chat** | PASS | All rules are in `spec.md`; this plan only restates them to map them to code structure. |
 | **V. Spec is a living artifact** | PASS | The plan leaves room for Day 2 changes via the `DECISIONS.md` file and centralized policy configuration (`src/regras/config.py`). |
@@ -99,7 +99,10 @@ src/
     ├── estorno.py         # RN-009: negative-value handling
     ├── viagem.py          # RN-005: travel dates from lodging and adjacent transport
     ├── limites.py         # RN-001, RN-002, RN-003: daily limits
-    └── arredondamento.py  # RN-010: half-up rounding to cents
+    ├── arredondamento.py  # RN-010: half-up rounding to cents
+    ├── politica.py        # load policy v4 and lookup limits by cost center
+    ├── cambio.py          # load exchange rates from JSON
+    └── moeda.py           # RN-011, RN-012: currency conversion and missing-rate rejection
 
 tests/
 ├── conftest.py            # shared fixtures (sample expenses, periods)
@@ -111,7 +114,10 @@ tests/
 │   ├── test_estorno.py
 │   ├── test_viagem.py
 │   ├── test_limites.py
-│   └── test_arredondamento.py
+│   ├── test_arredondamento.py
+│   ├── test_politica.py
+│   ├── test_cambio.py
+│   └── test_moeda.py
 ├── test_motor.py          # integration-level tests over full pipeline
 └── test_cli.py            # CLI argument/output tests
 ```
@@ -154,22 +160,29 @@ Day 2 requirement changes.
 
 ## Policy Representation
 
-Policy limits and the travel multiplier live in `src/regras/config.py`:
+After the v4 policy change, the reimbursement engine must read limits from an
+external policy file (`exemplos/envelope/politica-v4.json`) rather than from
+hard-coded constants.
 
-```python
-# Pseudocode — exact implementation is a task
-LIMITES = {
-    "alimentacao": Decimal("60.00"),
-    "transporte_urbano": Decimal("80.00"),
-    "hospedagem": Decimal("250.00"),  # per diária
-}
-
-FATOR_VIAGEM = Decimal("1.50")
-LIMIAR_NOTA_FISCAL = Decimal("100.00")
+```text
+exemplos/envelope/politica-v4.json
+├── padrao                # fallback limits for unknown cost centers
+├── centros_custo         # per-cost-center limit tables
+├── nota_fiscal_obrigatoria_acima_de
+└── acrescimo_em_viagem_percentual
 ```
 
-Centralizing values makes the Day 2 envelope change cheap: a single file edit,
-one test update and the rest of the pipeline stays untouched.
+A new rule module, `src/regras/politica.py`, will load the policy file and
+expose a function `limites_do_centro(centro_custo)` that returns the appropriate
+table, falling back to `padrao` when the center is absent. The travel multiplier
+(50%) and the invoice threshold (R$ 100,00) remain as cross-cutting constants.
+
+Exchange rates are read from `exemplos/envelope/cambio.json` by a new module
+`src/regras/cambio.py`. Missing rates cause the expense to be rejected per
+RN-012.
+
+`src/regras/config.py` will keep only the file paths and the cross-cutting
+constants (`FATOR_VIAGEM`, `LIMIAR_NOTA_FISCAL`), not the per-category limits.
 
 ---
 
@@ -181,7 +194,7 @@ one test update and the rest of the pipeline stays untouched.
 | DT-002 | Standard-library CLI (`argparse`) | `click`, `typer` | Zero runtime deps; sufficient for two flags. |
 | DT-003 | One module per business rule | Monolithic `motor.py` | Each `RN` maps to a file and a test file; traceability is explicit. |
 | DT-004 | Pure-function rule engine | Stateful engine with database | Easy to test; resilient to requirement changes; matches the spec's JSON-in/JSON-out contract. |
-| DT-005 | Centralized policy config | Hard-coded limits or external YAML | Simpler than YAML for the current size; easier to change than scattered constants. |
+| DT-005 | External JSON policy file | Hard-coded limits, centralized config, or external YAML | Matches the v4 requirement that finance maintains limits outside the code; easier to update than scattered constants. |
 
 ---
 
@@ -206,6 +219,8 @@ one test update and the rest of the pipeline stays untouched.
 | Mudança de requisito no Dia 2 exige refatoração grande | Média | Arquitetura em módulos pequenos com responsabilidade única; config centralizada. |
 | Arredondamento decimal divergir da spec | Baixa | Usar `Decimal` com `ROUND_HALF_UP`; testar com valor `33.333` da entrada de exemplo. |
 | Categoria `ALIMENTACAO` em caixa alta não ser normalizada | Baixa | Implementar comparação case-insensitive em `RN-008` e testar. |
+| Centro de custo desconhecido usar limites errados | Baixa | Garantir fallback para `padrao` em `politica.py` e cobrir com `test_politica.py`. |
+| Cotação cambial ausente não ser rejeitada | Baixa | Implementar `moeda.py` para rejeitar quando `cambio.py` retornar `None`; testar com GBP. |
 
 ---
 

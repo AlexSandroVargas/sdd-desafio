@@ -1,6 +1,6 @@
 # Spec — Motor de Cálculo de Reembolso
 
-**Versão:** 1.1 · **Status:** rascunho · **Última alteração:** 2026-10-18
+**Versão:** 1.2 · **Status:** rascunho · **Última alteração:** 2026-10-18
 
 > **Regra de ouro deste arquivo:** ele descreve o QUÊ e o PORQUÊ. Nenhuma linha
 > aqui pode citar linguagem, biblioteca, classe, função ou estrutura de pasta.
@@ -8,6 +8,11 @@
 >
 > **Teste de aceitação da própria spec:** uma pessoa que nunca viu o projeto
 > consegue, lendo só este arquivo, verificar se o sistema está correto?
+>
+> **Mudança vigente:** a política de reembolso passou para a versão 4 (v4).
+> Os limites deixam de ser únicos para toda a empresa e passam a variar por
+> centro de custo. A entrada passa a admitir despesas em moeda estrangeira. Esta
+> spec reflete essas mudanças e as novas ambiguidades que elas trouxeram.
 
 ---
 
@@ -61,7 +66,8 @@ decisão e apresente o total devido ao colaborador.
 | `despesas[].categoria` | string | Categoria da despesa | sim |
 | `despesas[].descricao` | string | Descrição livre da despesa | sim |
 | `despesas[].fornecedor` | string | Nome do fornecedor | sim |
-| `despesas[].valor` | número | Valor declarado da despesa | sim |
+| `despesas[].valor` | número | Valor declarado da despesa na moeda informada | sim |
+| `despesas[].moeda` | string | Código ISO 4217 da moeda da despesa; quando ausente, assume-se `BRL` | não |
 | `despesas[].tem_nota_fiscal` | boolean | Indica se há nota fiscal | sim |
 
 **Saída:** definida por este spec. Estrutura e significado de cada campo:
@@ -72,7 +78,7 @@ decisão e apresente o total devido ao colaborador.
 | `periodo` | objeto | Dados do período, iguais à entrada |
 | `resumo.total_declarado` | número | Soma dos valores declarados de todas as despesas |
 | `resumo.total_reembolsavel` | número | Soma dos valores efetivamente reembolsáveis |
-| `resumo.total_nao_reembolsavel` | número | Soma dos valores acima dos limites, excedentes não pagos |
+| `resumo.total_nao_reembolsavel` | número | Soma dos valores acima dos limites (excedentes não pagos) e dos valores de despesas com status `nao_reembolsavel` |
 | `resumo.total_rejeitado` | número | Soma dos valores de despesas inteiramente recusadas |
 | `resumo.quantidade_despesas` | número | Quantidade total de despesas processadas |
 | `despesas` | array | Lista de despesas com resultado do cálculo |
@@ -82,7 +88,7 @@ decisão e apresente o total devido ao colaborador.
 | `despesas[].valor_declarado` | número | Valor declarado original |
 | `despesas[].valor_reembolsavel` | número | Valor que será reembolsado |
 | `despesas[].valor_nao_reembolsavel` | número | Parte do valor declarado que não será reembolsada |
-| `despesas[].status` | string | `aprovado`, `parcial`, `rejeitado` ou `estorno` |
+| `despesas[].status` | string | `aprovado`, `parcial`, `nao_reembolsavel`, `rejeitado` ou `estorno` |
 | `despesas[].motivo` | string | Justificativa da decisão |
 | `alertas` | array | Alertas transversais, como duplicatas |
 | `alertas[].tipo` | string | Tipo do alerta, ex.: `duplicata` |
@@ -144,69 +150,78 @@ Cada regra recebe um ID (`RN-001`, ...). As tasks vão referenciar esses IDs.
 ### RN-001 — Limite diário de alimentação
 
 **Regra:** O valor reembolsável das despesas da categoria `alimentacao` em uma
-mesma data é limitado a R$ 60,00 por dia. Quando a data da despesa é um dia de
-viagem, o limite sobe para R$ 90,00. As despesas do dia são ordenadas por valor
-declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
-sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
-teto restante; a primeira que não couber integralmente recebe o valor restante
-como reembolso parcial; as demais são rejeitadas.
-**Origem:** política do RH, itens 1 e 6 (com AMB-001, AMB-003 e AMB-005)
-**Aceite:** duas refeições de R$ 72,50 e R$ 38,00 no mesmo dia → ordenadas como
-R$ 72,50 e R$ 38,00; limite R$ 60,00; a primeira recebe R$ 60,00 (parcial) e a
-segunda é rejeitada.
+mesma data é limitado ao teto diário definido na tabela do centro de custo do
+colaborador. Quando a data da despesa é um dia de viagem, o teto sobe em 50%.
+As despesas do dia são ordenadas por valor declarado decrescente (empate
+preserva a ordem de entrada); o teto é aplicado sequencialmente: cada despesa é
+reembolsada integralmente enquanto couber no teto restante; a primeira que não
+couber integralmente recebe o valor restante como reembolso parcial; as demais
+são rejeitadas.
+**Origem:** política do RH v4, item A (com AMB-001, AMB-003, AMB-005 e AMB-011)
+**Aceite:** colaborador do `CC-ADM` (teto de alimentação R$ 45,00) com duas
+refeições de R$ 72,50 e R$ 38,00 no mesmo dia → ordenadas como R$ 72,50 e R$ 38,00;
+limite R$ 45,00; a primeira recebe R$ 45,00 (parcial) e a segunda é rejeitada.
 
 ### RN-002 — Limite diário de transporte urbano
 
 **Regra:** O valor reembolsável das despesas da categoria `transporte_urbano` em
-uma mesma data é limitado a R$ 80,00 por dia. Quando a data da despesa é um dia
-de viagem, o limite sobe para R$ 120,00. As despesas do dia são ordenadas por valor
-declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
-sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
-teto restante; a primeira que não couber integralmente recebe o valor restante
-como reembolso parcial; as demais são rejeitadas.
-**Origem:** política do RH, itens 2 e 6 (com AMB-001, AMB-003 e AMB-005)
-**Aceite:** uma corrida de R$ 100,00 no dia → reembolsável R$ 80,00, não
-reembolsável R$ 20,00.
+uma mesma data é limitado ao teto diário definido na tabela do centro de custo
+do colaborador. Quando a data da despesa é um dia de viagem, o teto sobe em 50%.
+As despesas do dia são ordenadas por valor declarado decrescente (empate
+preserva a ordem de entrada); o teto é aplicado sequencialmente: cada despesa é
+reembolsada integralmente enquanto couber no teto restante; a primeira que não
+couber integralmente recebe o valor restante como reembolso parcial; as demais
+são rejeitadas.
+**Origem:** política do RH v4, item A (com AMB-001, AMB-003, AMB-005 e AMB-011)
+**Aceite:** colaborador do `CC-COMERCIAL` (teto de transporte R$ 150,00) com uma
+corrida de R$ 100,00 no dia → reembolsável R$ 100,00, não reembolsável R$ 0,00.
 
 ### RN-003 — Limite de hospedagem por diária
 
-**Regra:** O valor reembolsável de uma despesa de hospedagem é limitado a
-R$ 250,00 multiplicado pelo número de diárias indicado na descrição; quando não
-houver indicação, considera-se uma única diária. Quando a hospedagem corresponde
-a dias de viagem, o limite por diária sobe para R$ 375,00. O excedente é não reembolsável.
-**Origem:** política do RH, itens 3 e 6 (com AMB-002 e AMB-005)
-**Aceite:** despesa de R$ 800,00 descrita como "Hotel Rio - 2 diarias" em dias
-de viagem → limite ampliado de R$ 750,00; reembolsável R$ 750,00.
+**Regra:** O valor reembolsável de uma despesa de hospedagem é limitado ao teto
+por diária definido na tabela do centro de custo do colaborador multiplicado
+pelo número de diárias indicado na descrição; quando não houver indicação,
+considera-se uma única diária. Quando a hospedagem corresponde a dias de viagem,
+o limite por diária sobe em 50%. Se o teto por diária do centro de custo for zero,
+a hospedagem não é reembolsável e recebe status `nao_reembolsavel`. O excedente
+é não reembolsável e recebe status `parcial`.
+**Origem:** política do RH v4, itens A e B (com AMB-002, AMB-005, AMB-011 e AMB-013)
+**Aceite:** colaborador do `CC-ENG-PLATAFORMA` (hospedagem não reembolsável) com
+despesa de R$ 800,00 descrita como "Hotel - 2 diarias" em dia de viagem →
+reembolsável R$ 0,00, não reembolsável R$ 800,00, status `nao_reembolsavel`.
 
 ### RN-004 — Nota fiscal obrigatória acima de R$ 100,00
 
-**Regra:** Toda despesa com valor declarado estritamente superior a R$ 100,00 e
-sem nota fiscal (`tem_nota_fiscal` = `false`) é rejeitada, com valor
-reembolsável zero. Despesas de exatamente R$ 100,00 ou menos não exigem nota.
-**Origem:** política do RH, item 5 (com AMB-004)
-**Aceite:** uma corrida de R$ 100,01 sem nota → rejeitada; uma corrida de
-R$ 100,00 sem nota → pode ser reembolsada dentro do limite diário.
+**Regra:** Toda despesa cujo valor em BRL seja estritamente superior a R$ 100,00
+e sem nota fiscal (`tem_nota_fiscal` = `false`) é rejeitada, com valor
+reembolsável zero. Despesas de exatamente R$ 100,00 ou menos (após conversão para
+BRL, quando aplicável) não exigem nota. A conversão para BRL, quando necessária,
+segue a RN-011.
+**Origem:** política do RH v4, item 5 (com AMB-004, AMB-011 e AMB-015)
+**Aceite:** uma refeição de EUR 22,00 sem nota em data com taxa EUR 5,93 → valor
+em BRL R$ 130,46; rejeitada por falta de nota. Uma corrida de R$ 100,00 sem nota
+→ pode ser reembolsada dentro do limite diário.
 
 ### RN-005 — Limites ampliados em viagem
 
-**Regra:** Os limites de alimentação, transporte urbano e hospedagem são
-aumentados em 50% somente nas datas consideradas dias de viagem. Em hospedagem
-nacional, são dias de viagem o check-in e os dias de hospedagem contados a partir
-dele; se a descrição não informar check-in, usa-se a data da hospedagem, apoiada
-por transporte para aeroporto ou hotel na mesma data, quando disponível. Em
-hospedagem internacional, identificada pela menção `internacional` na descrição,
-também pode ser dia de viagem a véspera do check-in e o dia posterior ao último
-dia de hospedagem ou checkout, desde que haja, na respectiva data adjacente, uma
-despesa de transporte urbano cuja descrição mencione aeroporto ou hotel. Sem a
-menção `internacional`, a hospedagem é nacional. Check-in e checkout informados
-na descrição prevalecem sobre a data da despesa e a quantidade de diárias; sem
-checkout, o último dia é obtido pela quantidade de diárias, assumindo uma quando
-não informada. Somente datas dentro do período de competência recebem ampliação.
-**Origem:** política do RH, item 6 (com AMB-005)
-**Aceite:** hospedagem nacional de duas diárias com check-in em 10/07 amplia os
-limites somente em 10/07 e 11/07. Hospedagem internacional nas mesmas datas, com
-transportes para aeroporto em 09/07 e 12/07, amplia também os limites nesses dois
-dias adjacentes.
+**Regra:** Os limites de alimentação, transporte urbano e hospedagem definidos
+na tabela do centro de custo são aumentados em 50% somente nas datas consideradas
+dias de viagem. Em hospedagem nacional, são dias de viagem o check-in e os dias
+de hospedagem contados a partir dele; se a descrição não informar check-in, usa-se
+a data da hospedagem, apoiada por transporte para aeroporto ou hotel na mesma
+data, quando disponível. Em hospedagem internacional, identificada pela menção
+`internacional` na descrição, também pode ser dia de viagem a véspera do check-in
+e o dia posterior ao último dia de hospedagem ou checkout, desde que haja, na
+respectiva data adjacente, uma despesa de transporte urbano cuja descrição
+mencione aeroporto ou hotel. Sem a menção `internacional`, a hospedagem é
+nacional. Check-in e checkout informados na descrição prevalecem sobre a data da
+despesa e a quantidade de diárias; sem checkout, o último dia é obtido pela
+quantidade de diárias, assumindo uma quando não informada. Somente datas dentro
+do período de competência recebem ampliação.
+**Origem:** política do RH v4, itens A e B (com AMB-005)
+**Aceite:** colaborador do `CC-COMERCIAL` (alimentação R$ 90,00) em hospedagem
+nacional de duas diárias com check-in em 10/07 → limite ampliado para R$ 135,00
+somente em 10/07 e 11/07.
 
 ### RN-006 — Tratamento de duplicatas
 
@@ -228,12 +243,17 @@ rejeitada com motivo "fora do período de competência".
 
 ### RN-008 — Categorias fora da política
 
-**Regra:** Apenas as categorias `alimentacao`, `transporte_urbano` e
-`hospedagem` são reembolsáveis. A comparação é case-insensitive. Qualquer outra
-categoria é rejeitada como fora da política.
-**Origem:** política do RH, item 9 (com AMB-008)
-**Aceite:** despesa da categoria `coworking` → rejeitada; despesa da categoria
-`ALIMENTACAO` → tratada como `alimentacao`.
+**Regra:** As categorias reembolsáveis são aquelas listadas na tabela do centro de
+custo do colaborador. Se o centro de custo não tiver tabela própria, aplicam-se
+as categorias da política padrão (`alimentacao`, `transporte_urbano` e
+`hospedagem`). A comparação é case-insensitive. Qualquer outra categoria é
+rejeitada como fora da política. A categoria `representacao` é reembolsável
+apenas quando presente na tabela do centro de custo.
+**Origem:** política do RH v4, item A (com AMB-008, AMB-011 e AMB-012)
+**Aceite:** despesa da categoria `coworking` em qualquer centro de custo →
+rejeitada; despesa da categoria `representacao` no `CC-COMERCIAL` → reembolsável
+com teto próprio; despesa da categoria `representacao` no `CC-ADM` → rejeitada;
+despesa da categoria `ALIMENTACAO` → tratada como `alimentacao`.
 
 ### RN-009 — Estornos
 
@@ -252,6 +272,26 @@ preservado sem alteração.
 **Origem:** gap identificado no exemplo (com AMB-010)
 **Aceite:** despesa de R$ 33,333 declarada → valor reembolsável arredondado
 para R$ 33,33.
+
+### RN-011 — Conversão de moeda estrangeira
+
+**Regra:** Despesas informadas com `moeda` diferente de `BRL` são convertidas
+para reais antes de qualquer comparação com limites ou com o limiar de nota
+fiscal. A conversão usa a taxa de câmbio da data da despesa publicada na tabela
+de câmbio. O valor reembolsável é sempre devolvido em BRL. Quando `moeda` não for
+informada, assume-se `BRL`.
+**Origem:** política do RH v4, item B (com AMB-014 e AMB-015)
+**Aceite:** despesa de EUR 22,00 em 2026-07-14 com taxa EUR 5,93 → valor em BRL
+R$ 130,46; compara-se a esse valor os limites e o limiar de nota fiscal.
+
+### RN-012 — Taxa de câmbio ausente
+
+**Regra:** Se a data da despesa não possuir taxa publicada para a moeda
+informada, a despesa é rejeitada com motivo indicando ausência de cotação. A
+rejeição ocorre antes da aplicação dos demais limites.
+**Origem:** política do RH v4, item B (com AMB-014)
+**Aceite:** despesa de GBP 55,00 em data sem cotação para GBP → rejeitada com
+motivo "moeda ou data sem cotação disponível".
 
 ---
 
@@ -377,12 +417,15 @@ incluir fora do período nos limites distorceria o controle do mês.
 **Texto original do RH:** "Categorias fora da política não são reembolsáveis"
 **O que não está claro:** Quais categorias estão cobertas? Variações de caixa
 (por exemplo, "ALIMENTACAO" maiúsculo) e erros de digitação são considerados
-fora da política?
-**Decisão:** As categorias reembolsáveis são `alimentacao`, `transporte_urbano` e
-`hospedagem`, comparadas de forma case-insensitive. Qualquer outro valor é
-considerado fora da política e não reembolsável.
+fora da política? A lista muda com a política v4 por centro de custo.
+**Decisão:** As categorias reembolsáveis são aquelas listadas na tabela do centro
+de custo do colaborador (ou no `padrao`, quando o centro não tem tabela), com
+comparação case-insensitive. O `padrao` da v4 cobre `alimentacao`,
+`transporte_urbano` e `hospedagem`; o `CC-COMERCIAL` adiciona `representacao`.
+Qualquer outro valor é considerado fora da política e não reembolsável.
 **Justificativa:** Tolerância a variação de digitação reduz suporte operacional;
-restringir a três categorias evita expansão silenciosa do escopo.
+usar a tabela do centro preserva a flexibilidade introduzida pela v4 sem
+expandir o escopo arbitrariamente.
 **Regra afetada:** RN-008
 
 ### AMB-009 — valores negativos
@@ -409,6 +452,76 @@ preservado sem alteração.
 mais comum e evita viés sistemático para baixo ou para cima.
 **Regra afetada:** RN-010
 
+### AMB-011 — "aplica-se a política padrão" para centros de custo desconhecidos
+
+**Texto original do RH:** "Alguns centros de custo não têm entrada na tabela. Nesse caso, aplica-se a política padrão."
+**O que não está claro:** A política padrão contém apenas `alimentacao`,
+`transporte_urbano` e `hospedagem`. Se um colaborador de centro sem tabela
+lançar `representacao` ou outra categoria extra, ela é reembolsável? Os limites
+são os da política padrão ou da tabela do centro (que não existe)?
+**Decisão:** Centro de custo sem entrada na tabela usa o bloco `padrao` da
+política v4. Portanto, somente `alimentacao`, `transporte_urbano` e `hospedagem`
+são reembolsáveis, com os limites do `padrao`. Categorias ausentes do `padrao`
+são rejeitadas como fora da política.
+**Justificativa:** O comunicado diz explicitamente "aplica-se a política padrão";
+usar qualquer outra interpretação criaria limites inexistentes para centros
+fora da tabela.
+**Regra afetada:** RN-001, RN-002, RN-003, RN-008
+
+### AMB-012 — Categorias não listadas no centro de custo
+
+**Texto original do RH:** Cada centro de custo tem "a sua tabela".
+**O que não está claro:** Se uma categoria não consta na tabela do centro, mas
+consta no `padrao`, o colaborador pode reembolsá-la? E se constar na tabela com
+limite zero?
+**Decisão:** A lista de categorias reembolsáveis de um centro é exatamente a
+união das categorias presentes na sua tabela (ou no `padrao`, quando o centro
+não tem tabela). Uma categoria com limite zero dentro da tabela não é
+reembolsável, mas é reconhecida como categoria válida; o valor inteiro fica
+não reembolsável em vez de ser rejeitado como fora da política.
+**Justificativa:** Distingue "não reembolsável por política do centro" de "não
+reconhecida como categoria"; isso mantém a justificativa correta no resultado.
+**Regra afetada:** RN-003, RN-008
+
+### AMB-013 — Limite zero na hospedagem do CC-ENG-PLATAFORMA
+
+**Texto original do RH:** "`CC-ENG-PLATAFORMA` não reembolsa `hospedagem` de forma alguma."
+**O que não está claro:** O limite zero deve ser tratado como rejeição total ou
+como categoria reconhecida mas inteiramente não reembolsável?
+**Decisão:** A hospedagem é reconhecida como categoria válida, mas o valor
+reembolsável é zero e o valor declarado inteiro é classificado como não
+reembolsável. O status da despesa é `nao_reembolsavel`.
+**Justificativa:** A categoria existe na tabela do centro; a política apenas diz
+que não reembolsa, não que proíbe o lançamento. O status `nao_reembolsavel`
+distingue o caso de uma categoria permitida que, por regra do centro, gera valor
+zero de reembolso, separando-o de rejeição de categoria e de reembolso parcial.
+**Regra afetada:** RN-003
+
+### AMB-014 — "Taxa da data da despesa" sem cotação publicada
+
+**Texto original do RH:** "A conversão usa a taxa da data da despesa. As taxas
+estão em `cambio.json`."
+**O que não está claro:** O arquivo de câmbio só publica cotações em dias úteis
+bancários. E se a despesa cair em fim de semana, feriado ou em data futura? E se
+a moeda não estiver listada na data?
+**Decisão:** Se não existir cotação para a moeda na data exata da despesa, a
+despesa é rejeitada. Não se faz interpolação, uso de taxa do dia anterior ou
+taxa padrão.
+**Justificativa:** Interpolação introduziria decisões adicionais sem respaldo na
+política. Rejeitar é previsível e audita o problema na entrada.
+**Regra afetada:** RN-011, RN-012
+
+### AMB-015 — Limiar de nota fiscal em moeda estrangeira
+
+**Texto original do RH:** "Nota fiscal é obrigatória acima de R$ 100".
+**O que não está claro:** O limiar se aplica ao valor original na moeda
+estrangeira ou ao valor convertido para BRL?
+**Decisão:** O limiar de R$ 100,00 é aplicado ao valor em BRL após conversão pela
+taxa da data da despesa.
+**Justificativa:** Os limites da política são sempre em BRL; manter o limiar na
+mesma moeda evita comparações mistas e reflete o risco fiscal real.
+**Regra afetada:** RN-004, RN-011
+
 ---
 
 ## 7. Casos de borda
@@ -431,28 +544,37 @@ mais comum e evita viés sistemático para baixo ou para cima.
 | Estorno dentro do período | `transporte_urbano` de R$ -45,00 | Reduz total reembolsável; não consome limite | RN-009 |
 | Valor com três decimais | `alimentacao` de R$ 33,333 | Reembolsável arredondado para R$ 33,33 | RN-010 |
 | Ausência total de nota em valor baixo | `alimentacao` de R$ 50,00 sem nota | Reembolsável dentro do limite | RN-004 |
+| Centro com tabela própria | Colaborador do `CC-COMERCIAL` com `representacao` de R$ 300,00 | Reembolsável dentro do limite de representação | RN-008, RN-011 |
+| Centro sem tabela (`CC-SUPORTE-N2`) | `representacao` de R$ 190,00 | Rejeitada como categoria fora da política padrão | RN-008, AMB-011 |
+| Hospedagem proibida no centro | `CC-ENG-PLATAFORMA` com `hospedagem` de R$ 310,00 | Valor todo não reembolsável; status `nao_reembolsavel` | RN-003, AMB-013 |
+| Despesa em moeda estrangeira conhecida | `alimentacao` de EUR 22,00 em 2026-07-14 | Convertido para BRL (R$ 130,46) e depois limitado | RN-011 |
+| Despesa em moeda estrangeira sem cotação | `representacao` de GBP 55,00 em data sem cotação GBP | Rejeitada por ausência de cotação | RN-012 |
+| Nota fiscal acima do limiar após conversão | Transporte de USD 25,00 sem nota em data com taxa USD 5,50 | Valor em BRL R$ 137,50 > R$ 100 → rejeitado | RN-004, RN-011 |
 
 ## 8. Ordem de aplicação das regras
 
 A ordem abaixo garante que uma despesa seja descartada o mais cedo possível e
 que limites diários sejam calculados apenas sobre despesas realmente elegíveis.
 
-1. **RN-008 — Categorias fora da política:** verifica se a categoria é
-   reembolsável. Se não for, rejeita e para.
+1. **RN-008 — Categorias fora da política:** verifica se a categoria consta na
+   tabela do centro de custo (ou na política padrão, se o centro não tiver
+   tabela). Se não for reembolsável, rejeita e para.
 2. **RN-007 — Período de competência:** verifica se a data está dentro do
    intervalo. Se não estiver, rejeita e para.
-3. **RN-004 — Nota fiscal:** verifica se o valor declarado é maior que R$ 100,00
-   e se há nota. Se não houver, rejeita e para.
-4. **RN-006 — Duplicatas:** verifica se a despesa é duplicata de outra já
+3. **RN-011 e RN-012 — Conversão cambial:** converte o valor declarado para BRL
+   usando a taxa da data da despesa; se não houver cotação, rejeita e para.
+4. **RN-004 — Nota fiscal:** verifica se o valor em BRL é maior que R$ 100,00 e
+   se há nota. Se não houver, rejeita e para.
+5. **RN-006 — Duplicatas:** verifica se a despesa é duplicata de outra já
    processada. Se for, rejeita e para.
-5. **RN-009 — Estornos:** valores negativos válidos são marcados como estorno e
+6. **RN-009 — Estornos:** valores negativos válidos são marcados como estorno e
    reduzem o total do período; não entram nos limites diários.
-6. **RN-005 — Viagem:** determina os dias de hospedagem e, em viagens
+7. **RN-005 — Viagem:** determina os dias de hospedagem e, em viagens
    internacionais, valida transportes nos dias adjacentes para definir em quais
    datas os limites são ampliados.
-7. **RN-001, RN-002 e RN-003 — Limites:** aplica os limites diários e por
-   diária sobre as despesas restantes.
-8. **RN-010 — Precisão monetária:** arredonda os valores finais para duas casas
+8. **RN-001, RN-002 e RN-003 — Limites:** aplica os tetos diários e por diária
+   do centro de custo sobre as despesas restantes.
+9. **RN-010 — Precisão monetária:** arredonda os valores finais para duas casas
    decimais.
 
 ## 9. Critérios de aceite
@@ -471,12 +593,21 @@ O sistema está pronto quando:
   mantendo apenas a primeira.
 - [ ] Despesas fora do período de competência são recusadas e não consomem
   limites.
-- [ ] Categorias fora da política são recusadas.
-- [ ] Somente despesas em dias de hospedagem têm limites ampliados em 50%; em
-  viagens internacionais, a véspera e o dia posterior também são ampliados
-  quando comprovados por transporte para aeroporto ou hotel na data adjacente.
+- [ ] Categorias fora da política são recusadas; a lista de categorias
+  reembolsáveis obedece à tabela do centro de custo ou à política padrão.
+- [ ] Categorias presentes na tabela do centro de custo, mesmo com limite zero,
+  são tratadas como válidas e têm o valor não reembolsável separado do valor
+  rejeitado, com status `nao_reembolsavel` quando o reembolso for zero.
+- [ ] Somente despesas em dias de hospedagem têm limites ampliados em 50% sobre
+  o teto do centro de custo; em viagens internacionais, a véspera e o dia
+  posterior também são ampliados quando comprovados por transporte para
+  aeroporto ou hotel na data adjacente.
 - [ ] Estornos reduzem o total reembolsável do período.
 - [ ] Todos os valores são arredondados para duas casas decimais.
+- [ ] Despesas em moeda estrangeira são convertidas para BRL pela taxa da data
+  da despesa antes de qualquer comparação com limites ou limiar de nota fiscal.
+- [ ] Despesas em moeda ou data sem cotação disponível são rejeitadas com
+  justificativa clara.
 
 ## 10. O que fica em aberto
 
@@ -488,3 +619,7 @@ O sistema está pronto quando:
 - Despesas com campos obrigatórios ausentes ou mal formatados serão rejeitadas
   com erro estrutural, mas o tratamento detalhado de erros de schema será
   definido no `plan.md`.
+- Fila de aprovação manual para itens acima de R$ 500,00 reembolsáveis (item C do
+  comunicado v4) permanece **fora de escopo** nesta versão. Se for incluída, a
+  saída passará a ter um status adicional de `pendente` e o campo
+  `valor_reembolsavel` passará a representar um valor condicional, não garantido.

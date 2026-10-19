@@ -33,24 +33,36 @@ o runtime utiliza a biblioteca padrão do Python.
 ## Validar o schema de entrada
 
 ```bash
-python -m json.tool exemplos/despesas-exemplo.json
+python -m json.tool exemplos/envelope/despesas-envelope.json
 ```
 
 A saída deve ser um JSON válido com a estrutura documentada em
-[`contracts/input-schema.json`](contracts/input-schema.json).
+[`contracts/input-schema.json`](contracts/input-schema.json). O campo `moeda` é
+opcional e, quando ausente, assume-se `BRL`.
 
 ---
 
 ## Executar o cálculo
 
 ```bash
-python -m reembolso calcular --input exemplos/despesas-exemplo.json --output resultado.json
+python -m reembolso calcular --input exemplos/envelope/despesas-envelope.json --output resultado.json
 ```
 
 Ou, com entry-point configurado:
 
 ```bash
-reembolso calcular --input exemplos/despesas-exemplo.json --output resultado.json
+reembolso calcular --input exemplos/envelope/despesas-envelope.json --output resultado.json
+```
+
+A política e o câmbio são carregados por padrão de `exemplos/envelope/politica-v4.json`
+e `exemplos/envelope/cambio.json`. Para usar outros arquivos:
+
+```bash
+python -m reembolso calcular \
+  --input exemplos/envelope/despesas-envelope.json \
+  --output resultado.json \
+  --politica exemplos/envelope/politica-v4.json \
+  --cambio exemplos/envelope/cambio.json
 ```
 
 ---
@@ -75,11 +87,11 @@ O schema completo está em [`contracts/output-schema.json`](contracts/output-sch
 ## Executar os testes
 
 ```bash
-pytest
+python -m pytest
 ```
 
 Resultado esperado: todos os testes passam. Cada regra de negócio (`RN-001` a
-`RN-010`) possui testes correspondentes.
+`RN-012`) possui testes correspondentes.
 
 ---
 
@@ -89,29 +101,33 @@ Use os casos de borda da `spec.md` para conferir o comportamento:
 
 | Cenário | Entrada de teste | Resultado esperado |
 |---|---|---|
-| Duas refeições no mesmo dia | `d-001` e `d-002` | `d-001` parcial (R$ 60,00); `d-002` rejeitado |
-| Transporte no limiar da nota | `d-003` (R$ 100,00, sem nota) | aprovado dentro do limite diário |
-| Transporte acima do limiar da nota | `d-004` (R$ 100,01, sem nota) | rejeitado |
-| Categoria fora da política | `d-005` (`coworking`) | rejeitado |
-| Duplicata | `d-006` e `d-007` | primeira aprovada, segunda rejeitada como duplicata |
-| Fora do período | `d-008` (`2026-04-15`) | rejeitado |
-| Estorno | `d-009` (R$ -45,00) | status `estorno` |
-| Hospedagem com diárias | `d-010` (2 diárias, R$ 480,00) | aprovado |
-| Arredondamento | `d-011` (R$ 33,333) | valor reembolsável R$ 33,33 |
-| Caixa diferente | `d-014` (`ALIMENTACAO`) | tratado como `alimentacao` |
+| Duas refeições no mesmo dia | `e-008` (R$ 95,00) e outra no mesmo dia no `CC-COMERCIAL` | primeira parcial; segunda rejeitada |
+| Transporte no limiar da nota | valor BRL R$ 100,00, sem nota | aprovado dentro do limite diário |
+| Transporte acima do limiar após conversão | `e-005` (USD 40,00 sem nota, taxa 5,50) | rejeitado |
+| Categoria fora da política | `e-009` (`coworking`) | rejeitado |
+| Categoria `representacao` válida | `e-001` (`representacao`, R$ 340,00) no `CC-COMERCIAL` | rejeitado por ultrapassar limite de R$ 300,00 |
+| Categoria `representacao` em centro sem tabela | `f-003` (`representacao`, `CC-SUPORTE-N2`) | rejeitado |
+| Duplicata | duas despesas idênticas | primeira aprovada, segunda rejeitada como duplicata |
+| Fora do período | data fora de `inicio`/`fim` | rejeitado |
+| Estorno | valor negativo | status `estorno` |
+| Hospedagem proibida no centro | `f-002` (`hospedagem`, `CC-ENG-PLATAFORMA`) | status `nao_reembolsavel` |
+| Hospedagem com diárias em viagem | `e-007` (3 noites, BRL 1.200,00, `CC-COMERCIAL`) | parcial (limite ampliado de R$ 600,00/dia) |
+| Arredondamento | valor com 3 decimais | arredondado para duas casas |
+| Caixa diferente | `ALIMENTACAO` | tratado como `alimentacao` |
+| Moeda estrangeira sem cotação | `e-006` (GBP 55,00) | rejeitado |
 
 ---
 
 ## Verificar rastreabilidade
 
 1. Abra `specs/001-motor-reembolso/spec.md` e escolha uma regra (`RN-001` a
-   `RN-010`).
+   `RN-012`).
 2. No código, localize o módulo correspondente em `src/regras/`.
 3. Em `tests/`, localize o teste com o mesmo nome da regra.
 4. Execute apenas esse teste:
 
 ```bash
-pytest tests/test_regras/test_limites.py -v
+python -m pytest tests/test_regras/test_limites.py -v
 ```
 
 ---

@@ -1,10 +1,10 @@
 # Sessão — ajuste-rn-005-viagem
 
-- **Sequencial:** 07
+- **Sequencial:** 08
 - **Data:** 2026-10-18
 - **Hora:** 21:01
 - **Branch:** `main`
-- **Incremental a partir de:** `06-speckit-implement.md`
+- **Incremental a partir de:** `07-speckit-implement.md`
 
 ---
 
@@ -117,4 +117,4 @@ Forneceu `python -m reembolso calcular --input exemplos/despesas-exemplo.json --
 > Executou `challenge-doc` e informou o nome `ajuste-rn-005-viagem`.
 
 ### Devin
-Normalizou o nome, determinou o sequencial 07 e iniciou este registro incremental conforme a política de commit único.
+Normalizou o nome, determinou o sequencial 08 e iniciou este registro incremental conforme a política de commit único.

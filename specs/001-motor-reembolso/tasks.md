@@ -255,3 +255,234 @@ With multiple developers:
 - [x] T048 Make lodging-limit expansion follow the stay dates derived from explicit check-in/checkout even when `despesa.data` differs, and cover the behavior in unit and pipeline tests, per RN-003/RN-005 (partial)
 - [x] T049 Align structural validation with the specified behavior of recording a malformed expense error while continuing to process the remaining expenses, including contract and CLI tests, per spec section 3 (contradicts)
 - [x] T050 Integrate the `src/modelos.py` entities into validation and result construction or record and propagate the formal decision to retain dictionary-based processing, per plan validation-layer decision and T005/T033 (partial)
+
+---
+
+## Phase 8: User Story 4 — Carregar Política e Câmbio Externos (Priority: P4)
+
+**Goal:** Implementar os novos módulos que leem a política v4 e as taxas de
+  câmbio de arquivos JSON externos, permitindo que o motor consulte limites por
+  centro de custo e converta moedas estrangeiras.
+
+**Independent Test**: Run `python -m pytest tests/test_regras/test_politica.py
+  tests/test_regras/test_cambio.py` — all pass.
+
+### Tests for User Story 4
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [x] T051 [P] [US4] Write unit test for `src/regras/politica.py` in
+  `tests/test_regras/test_politica.py` covering known cost centers, unknown cost
+  centers, and categories present/absent in a table.
+- [x] T052 [P] [US4] Write unit test for `src/regras/cambio.py` in
+  `tests/test_regras/test_cambio.py` covering available dates/currencies and
+  missing rates.
+
+### Implementation for User Story 4
+
+- [x] T053 [US4] Create `src/regras/politica.py` to load
+  `exemplos/envelope/politica-v4.json` and expose the policy table (`padrao` and
+  per cost-center) with a function `limites_do_centro(centro_custo)` that falls
+  back to `padrao` when the center is absent.
+- [x] T054 [US4] Create `src/regras/cambio.py` to load `exemplos/envelope/cambio.json`
+  and expose `cotacao(data, moeda)` returning the rate or `None` when unavailable.
+
+**Checkpoint**: User Story 4 should be fully functional and testable independently.
+
+---
+
+## Phase 9: User Story 5 — Aplicar Limites por Centro de Custo (Priority: P5)
+
+**Goal:** Fazer com que as regras de categoria e de limites consultem a tabela
+  do centro de custo, aceitem `representacao` condicionalmente, e tratem
+  hospedagem com limite zero como `nao_reembolsavel`.
+
+**Independent Test**: Run `python -m pytest tests/test_regras/test_categoria.py
+  tests/test_regras/test_limites.py` — all pass.
+
+### Tests for User Story 5
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [x] T055 [P] [US5] Write unit test in `tests/test_regras/test_categoria.py` for
+  `representacao`, unknown centers, and zero-lodging centers.
+- [x] T056 [P] [US5] Write unit test in `tests/test_regras/test_limites.py` for
+  center-specific limits and zero-lodging behavior.
+
+### Implementation for User Story 5
+
+- [x] T057 [US5] Update `src/regras/config.py` to remove hard-coded limits and
+  instead reference `src/regras/politica.py` with the default policy file path
+  `exemplos/envelope/politica-v4.json`.
+- [x] T058 [US5] Update `src/regras/categoria.py` (RN-008) to reject categories not
+  listed in the center's table (or `padrao`) and to accept `representacao`
+  only when the center explicitly includes it.
+- [x] T059 [US5] Update `src/regras/limites.py` (RN-001, RN-002, RN-003) to fetch
+  the daily/per-diária limit from the center's table, apply the 50% travel
+  increase on the center-specific limit, and treat a zero lodging limit as
+  `nao_reembolsavel` (valor reembolsável zero, valor não reembolsável igual ao
+  declarado) rather than a rejected category.
+
+**Checkpoint**: User Story 5 should be fully functional and testable independently.
+
+---
+
+## Phase 10: User Story 6 — Converter Moedas Estrangeiras (Priority: P6)
+
+**Goal:** Converter valores declarados em moeda estrangeira para BRL antes das
+  verificações de nota fiscal e limites, rejeitando despesas sem cotação.
+
+**Independent Test**: Run `python -m pytest tests/test_regras/test_moeda.py
+  tests/test_regras/test_nota_fiscal.py` — all pass.
+
+### Tests for User Story 6
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [x] T060 [P] [US6] Write unit test for `src/regras/moeda.py` in
+  `tests/test_regras/test_moeda.py` covering BRL default, foreign currency
+  conversion, and missing-rate rejection.
+- [x] T061 [P] [US6] Update `tests/test_regras/test_nota_fiscal.py` to verify the
+  R$ 100 threshold applies to the BRL-converted amount.
+
+### Implementation for User Story 6
+
+- [x] T062 [US6] Implement `src/regras/moeda.py` (RN-011, RN-012) to convert
+  declared values to BRL before limit/invoice checks and reject expenses when the
+  rate is missing.
+- [x] T063 [US6] Wire currency conversion into `src/motor.py` after period check
+  and before invoice check, updating the rule order to RN-008 → RN-007 →
+  RN-011/012 → RN-004 → RN-006 → RN-009 → RN-005 → RN-001/002/003 → RN-010.
+
+**Checkpoint**: User Story 6 should be fully functional and testable independently.
+
+---
+
+## Phase 11: User Story 7 — Integrar CLI e Validar Exemplos da v4 (Priority: P7)
+
+**Goal:** Integrar as novas flags `--politica`/`--cambio` na CLI e garantir que
+  os exemplos do envelope (`despesas-envelope.json` e
+  `despesas-envelope-cc-desconhecido.json`) produzam resultados coerentes.
+
+**Independent Test**: Run `python -m reembolso calcular --input
+  exemplos/envelope/despesas-envelope.json --output resultado.json` and validate
+  against `contracts/output-schema.json`; run `python -m pytest tests/test_cli.py
+  tests/test_motor.py` — all pass.
+
+### Tests for User Story 7
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [x] T064 [P] [US7] Add integration test in `tests/test_motor.py` using
+  `exemplos/envelope/despesas-envelope.json` and `politica-v4.json` +
+  `cambio.json`, asserting the expected statuses and totals for each envelope
+  expense.
+- [x] T065 [P] [US7] Add integration test in `tests/test_motor.py` using
+  `exemplos/envelope/despesas-envelope-cc-desconhecido.json`, asserting fallback
+  to `padrao` and rejection of `representacao`.
+- [x] T066 [P] [US7] Update `tests/test_cli.py` to exercise the new `--politica`
+  and `--cambio` flags.
+
+### Implementation for User Story 7
+
+- [x] T067 [US7] Update `src/cli.py` to accept `--politica` and `--cambio` flags
+  with defaults to the envelope example files, or read them from a
+  convention-based path.
+
+**Checkpoint**: User Story 7 should be fully functional and testable independently.
+
+---
+
+## Phase 12: Polish v4 & Cross-Cutting Concerns
+
+**Purpose:** Finalizar documentação, validação e regressão.
+
+- [x] T068 [P] Update `specs/001-motor-reembolso/checklists/requirements.md` to
+  reflect the new v4 scope and mark items complete as validation passes.
+- [x] T069 [P] Update `specs/001-motor-reembolso/plan.md` or `DECISIONS.md` if any
+  implementation detail diverges from the updated spec. (No divergence found.)
+- [x] T070 Run full `pytest` suite and ensure all old tests still pass after the
+  v4 changes.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3 → P4 → P5 → P6 → P7)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### v4-Specific Dependencies
+
+- **User Story 4 (P4)** must complete before User Stories 5 and 6, because
+  `politica.py` and `cambio.py` are required by `config.py`, `categoria.py`,
+  `limites.py` and `moeda.py`.
+- **User Story 5 (P5)** and **User Story 6 (P6)** can run in parallel after
+  User Story 4, but both must complete before User Story 7 integrates them into
+  the CLI and pipeline.
+- **User Story 7 (P7)** depends on User Stories 4, 5 and 6.
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Core rule modules before wiring into motor.py or cli.py
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Within User Story 4: T051 and T052 can run in parallel
+- Within User Story 5: T055 and T056 can run in parallel
+- Within User Story 6: T060 and T061 can run in parallel
+- Within User Story 7: T064, T065 and T066 can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 4
+
+```bash
+# Launch all tests for User Story 4 together:
+python -m pytest tests/test_regras/test_politica.py tests/test_regras/test_cambio.py -v
+
+# Launch core modules together:
+# src/regras/politica.py
+# src/regras/cambio.py
+```
+
+---
+
+## Implementation Strategy
+
+### v4 MVP First
+
+1. Complete Phase 8 (User Story 4): policy and exchange infrastructure.
+2. Complete Phase 9 (User Story 5): cost-center limits and category rules.
+3. Complete Phase 10 (User Story 6): currency conversion.
+4. **STOP and VALIDATE**: Test User Stories 4, 5 and 6 independently.
+5. Complete Phase 11 (User Story 7): CLI integration and envelope examples.
+6. Complete Phase 12 (Polish v4): documentation and regression.
+
+### Incremental Delivery
+
+- User Story 4 → independently testable policy/cambio modules.
+- User Story 5 → independently testable cost-center limit rules.
+- User Story 6 → independently testable currency conversion.
+- User Story 7 → end-to-end CLI and envelope validation.
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently

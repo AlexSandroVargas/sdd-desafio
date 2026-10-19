@@ -1,6 +1,9 @@
-CATEGORIAS_REEMBOLSAVEIS = {"alimentacao", "transporte_urbano", "hospedagem"}
+from .politica import Politica, limites_do_centro
 
 
-def normalizar_categoria(categoria: str) -> str | None:
+def normalizar_categoria(
+    categoria: str, centro_custo: str, politica: Politica
+) -> str | None:
     normalizada = categoria.lower()
-    return normalizada if normalizada in CATEGORIAS_REEMBOLSAVEIS else None
+    limites = limites_do_centro(politica, centro_custo)
+    return normalizada if normalizada in limites else None

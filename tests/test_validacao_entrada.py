@@ -23,7 +23,7 @@ def test_contrato_rejeita_periodo_invertido(entrada_base):
 
 def test_contrato_rejeita_apenas_despesa_com_propriedade_nao_prevista(entrada_base):
     entrada_base["despesas"].append(dict(entrada_base["despesas"][0], id="d-2", valor=20))
-    entrada_base["despesas"][0]["moeda"] = "BRL"
+    entrada_base["despesas"][0]["extra"] = "campo nao previsto"
     itens = processar(entrada_base)["despesas"]
     assert [item["status"] for item in itens] == ["rejeitado", "aprovado"]
     assert "não permitido" in itens[0]["motivo"]

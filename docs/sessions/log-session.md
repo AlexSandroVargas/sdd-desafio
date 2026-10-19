@@ -6,3 +6,4 @@
 | 2026-10-17 | 00:08 | [03-speckit-specify.md](03-speckit-specify.md) | 0f68752 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/0f68752) |
 | 2026-10-18 | 14:14 | [04-speckit-plan.md](04-speckit-plan.md) | 1780978 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/1780978) |
 | 2026-10-18 | 15:06 | [05-speckit-tasks-analyze.md](05-speckit-tasks-analyze.md) | 58e4873 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/58e4873) |
+| 2026-10-18 | 15:41 | [06-speckit-implement.md](06-speckit-implement.md) | 0144b33 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/0144b33) |

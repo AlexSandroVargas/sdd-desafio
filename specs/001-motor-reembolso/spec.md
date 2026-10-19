@@ -24,6 +24,13 @@ Criar um motor de cálculo que, dado o conjunto de despesas de um colaborador
 num período, determine o valor reembolsável de cada item, justifique cada
 decisão e apresente o total devido ao colaborador.
 
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: A própria despesa de hospedagem deve receber o limite ampliado de R$ 375,00 por diária nos dias considerados de viagem? → A: Sim, hospedagem recebe R$ 375,00 por diária.
+- Q: Quando várias despesas da mesma categoria no mesmo dia ultrapassarem o limite, como o valor disponível deve ser distribuído? → A: Aplicação sequencial por valor declarado decrescente.
+
 ## 3. Fora de escopo
 
 - Não faz interface web, mobile ou formulário de lançamento. A entrada é um
@@ -137,8 +144,8 @@ Cada regra recebe um ID (`RN-001`, ...). As tasks vão referenciar esses IDs.
 ### RN-001 — Limite diário de alimentação
 
 **Regra:** O valor reembolsável das despesas da categoria `alimentacao` em uma
-mesma data é limitado a R$ 60,00 por dia. Quando o colaborador está em viagem,
-o limite sobe para R$ 90,00. As despesas do dia são ordenadas por valor
+mesma data é limitado a R$ 60,00 por dia. Quando a data da despesa é um dia de
+viagem, o limite sobe para R$ 90,00. As despesas do dia são ordenadas por valor
 declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
 sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
 teto restante; a primeira que não couber integralmente recebe o valor restante
@@ -151,8 +158,8 @@ segunda é rejeitada.
 ### RN-002 — Limite diário de transporte urbano
 
 **Regra:** O valor reembolsável das despesas da categoria `transporte_urbano` em
-uma mesma data é limitado a R$ 80,00 por dia. Quando o colaborador está em
-viagem, o limite sobe para R$ 120,00. As despesas do dia são ordenadas por valor
+uma mesma data é limitado a R$ 80,00 por dia. Quando a data da despesa é um dia
+de viagem, o limite sobe para R$ 120,00. As despesas do dia são ordenadas por valor
 declarado decrescente (empate preserva a ordem de entrada); o teto é aplicado
 sequencialmente: cada despesa é reembolsada integralmente enquanto couber no
 teto restante; a primeira que não couber integralmente recebe o valor restante
@@ -165,11 +172,11 @@ reembolsável R$ 20,00.
 
 **Regra:** O valor reembolsável de uma despesa de hospedagem é limitado a
 R$ 250,00 multiplicado pelo número de diárias indicado na descrição; quando não
-houver indicação, considera-se uma única diária. Em viagem, o limite por diária
-sobe para R$ 375,00. O excedente é não reembolsável.
+houver indicação, considera-se uma única diária. Quando a hospedagem corresponde
+a dias de viagem, o limite por diária sobe para R$ 375,00. O excedente é não reembolsável.
 **Origem:** política do RH, itens 3 e 6 (com AMB-002 e AMB-005)
-**Aceite:** despesa de R$ 480,00 descrita como "Hotel Rio - 2 diarias" → limite
-R$ 500,00; reembolsável R$ 480,00.
+**Aceite:** despesa de R$ 800,00 descrita como "Hotel Rio - 2 diarias" em dias
+de viagem → limite ampliado de R$ 750,00; reembolsável R$ 750,00.
 
 ### RN-004 — Nota fiscal obrigatória acima de R$ 100,00
 
@@ -182,13 +189,24 @@ R$ 100,00 sem nota → pode ser reembolsada dentro do limite diário.
 
 ### RN-005 — Limites ampliados em viagem
 
-**Regra:** O colaborador é considerado em viagem quando houver ao menos uma
-despesa da categoria `hospedagem` dentro do período de competência. Nesse caso,
-os limites diários de alimentação, transporte urbano e hospedagem são aumentados
-em 50%.
+**Regra:** Os limites de alimentação, transporte urbano e hospedagem são
+aumentados em 50% somente nas datas consideradas dias de viagem. Em hospedagem
+nacional, são dias de viagem o check-in e os dias de hospedagem contados a partir
+dele; se a descrição não informar check-in, usa-se a data da hospedagem, apoiada
+por transporte para aeroporto ou hotel na mesma data, quando disponível. Em
+hospedagem internacional, identificada pela menção `internacional` na descrição,
+também pode ser dia de viagem a véspera do check-in e o dia posterior ao último
+dia de hospedagem ou checkout, desde que haja, na respectiva data adjacente, uma
+despesa de transporte urbano cuja descrição mencione aeroporto ou hotel. Sem a
+menção `internacional`, a hospedagem é nacional. Check-in e checkout informados
+na descrição prevalecem sobre a data da despesa e a quantidade de diárias; sem
+checkout, o último dia é obtido pela quantidade de diárias, assumindo uma quando
+não informada. Somente datas dentro do período de competência recebem ampliação.
 **Origem:** política do RH, item 6 (com AMB-005)
-**Aceite:** presença de uma hospedagem no período → limite de alimentação passa
-a R$ 90,00, transporte para R$ 120,00 e hospedagem para R$ 375,00 por diária.
+**Aceite:** hospedagem nacional de duas diárias com check-in em 10/07 amplia os
+limites somente em 10/07 e 11/07. Hospedagem internacional nas mesmas datas, com
+transportes para aeroporto em 09/07 e 12/07, amplia também os limites nesses dois
+dias adjacentes.
 
 ### RN-006 — Tratamento de duplicatas
 
@@ -252,11 +270,14 @@ despesas do dia? Se for por dia, duas refeições no mesmo dia somam ou cada uma
 tem limite próprio? Como dividir o reembolso entre várias despesas do mesmo dia
 quando o total ultrapassa o limite?
 **Decisão:** O limite é agregado por categoria e por data. Todas as despesas da
-mesma categoria no mesmo dia competem pelo teto diário. O valor reembolsável
-acima do limite é distribuído proporcionalmente entre os itens do dia.
-**Justificativa:** Evita abuso por meio de múltiplos lançamentos pequenos e
-reflete a intenção de controle de gasto diário; a divisão proporcional é justa
-com todas as despesas do dia.
+mesma categoria no mesmo dia competem pelo teto diário e são ordenadas por valor
+declarado decrescente, preservando a ordem de entrada em caso de empate. O teto
+é aplicado sequencialmente: cada item recebe o valor integral enquanto houver
+saldo; o primeiro item que exceder o saldo recebe o restante, e os seguintes são
+rejeitados.
+**Justificativa:** Evita abuso por meio de múltiplos lançamentos pequenos e torna
+a distribuição determinística, auditável e consistente com o tratamento de
+reembolso parcial.
 **Regra afetada:** RN-001, RN-002
 
 ### AMB-002 — "por diária" na hospedagem
@@ -311,14 +332,19 @@ parcialmente sem nota.
 
 **Texto original do RH:** "Colaborador em viagem tem limites ampliados em 50%"
 **O que não está claro:** A entrada não possui um campo `em_viagem`. Como o
-sistema deve determinar que o colaborador está em viagem? Os limites ampliados
-valem para todas as categorias?
-**Decisão:** O colaborador é considerado em viagem quando houver ao menos uma
-despesa de hospedagem dentro do período de competência. O acréscimo de 50%
-aplica-se aos limites diários de alimentação, transporte urbano e hospedagem.
-**Justificativa:** Hospedagem é o indicador objetivo de deslocamento disponível
-na entrada; ampliar todas as categorias reflete o aumento real de custos durante
-uma viagem.
+sistema deve determinar quais datas são dias de viagem? Como diferenciar viagens
+nacionais e internacionais e tratar chegada e retorno?
+**Decisão:** A ampliação é determinada por data, e não para todo o período. A
+descrição da hospedagem informa, quando disponíveis, se a viagem é internacional
+e as datas de check-in e checkout; a ausência de `internacional` indica viagem
+nacional. Viagens nacionais abrangem somente os dias de hospedagem. Viagens
+internacionais podem incluir a véspera e o dia posterior à hospedagem quando
+existir transporte para aeroporto ou hotel exatamente nesses dias adjacentes.
+Sem datas explícitas, a data da hospedagem inicia a contagem das diárias, e os
+transportes adjacentes servem como evidência dos dias adicionais previstos.
+**Justificativa:** Vincular a ampliação às datas efetivas evita elevar os limites
+do mês inteiro por causa de uma única hospedagem, enquanto o transporte fornece
+evidência objetiva para os dias de deslocamento internacional.
 **Regra afetada:** RN-005
 
 ### AMB-006 — "duplicatas devem ser tratadas"
@@ -390,10 +416,13 @@ mais comum e evita viés sistemático para baixo ou para cima.
 | Caso | Entrada | Comportamento esperado | Regra |
 |---|---|---|---|
 | Duas refeições no mesmo dia | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data | Ordenadas R$ 72,50 e R$ 38,00; limite R$ 60,00; primeira recebe R$ 60,00 (parcial) e segunda é rejeitada | RN-001 |
-| Duas refeições no mesmo dia em viagem | `alimentacao` de R$ 72,50 e R$ 38,00 na mesma data, com hospedagem no período | Limite R$ 90,00; primeira recebe R$ 72,50; segunda recebe R$ 17,50 (parcial); excedente R$ 20,50 rejeitado | RN-001, RN-005 |
+| Duas refeições em dia de hospedagem | `alimentacao` de R$ 72,50 e R$ 38,00 em um dia abrangido pela hospedagem | Limite R$ 90,00; primeira recebe R$ 72,50; segunda recebe R$ 17,50 (parcial); excedente R$ 20,50 rejeitado | RN-001, RN-005 |
+| Alimentação fora dos dias hospedados | Hospedagem nacional de 10/07 a 11/07 e alimentação em 12/07 | Aplica limite normal de R$ 60,00 em 12/07 | RN-001, RN-005 |
+| Deslocamento internacional adjacente | Hospedagem internacional de 10/07 a 11/07 e transportes para aeroporto em 09/07 e 12/07 | 09/07 e 12/07 também recebem limites ampliados | RN-005 |
+| Internacional sem transporte adjacente | Hospedagem internacional de 10/07 a 11/07 sem transporte em 09/07 ou 12/07 | Somente 10/07 e 11/07 recebem limites ampliados | RN-005 |
 | Transporte exatamente no limiar da nota | `transporte_urbano` de R$ 100,00 sem nota | Reembolsável dentro do limite diário, pois R$ 100,00 não exige nota | RN-002, RN-004 |
 | Transporte um centavo acima do limiar | `transporte_urbano` de R$ 100,01 sem nota | Rejeitado por falta de nota | RN-004 |
-| Hospedagem com várias diárias | `hospedagem` de R$ 480,00 descrita como "2 diárias" | Limite R$ 500,00; reembolsável R$ 480,00 | RN-003 |
+| Hospedagem com várias diárias | `hospedagem` de R$ 800,00 descrita como "2 diárias" em dias de viagem | Limite ampliado de R$ 750,00; reembolsável R$ 750,00 | RN-003, RN-005 |
 | Hospedagem sem indicação de diárias | `hospedagem` de R$ 300,00 sem indicação de diárias | Considera 1 diária; limite R$ 250,00; reembolsável R$ 250,00 | RN-003 |
 | Despesa fora do período | `alimentacao` de R$ 41,00 em data fora de `inicio`/`fim` | Rejeitada; não entra nos limites | RN-007 |
 | Categoria desconhecida | `coworking` de R$ 89,00 | Rejeitada como fora da política | RN-008 |
@@ -418,8 +447,9 @@ que limites diários sejam calculados apenas sobre despesas realmente elegíveis
    processada. Se for, rejeita e para.
 5. **RN-009 — Estornos:** valores negativos válidos são marcados como estorno e
    reduzem o total do período; não entram nos limites diários.
-6. **RN-005 — Viagem:** detecta a existência de hospedagem no período para
-   definir os limites ampliados.
+6. **RN-005 — Viagem:** determina os dias de hospedagem e, em viagens
+   internacionais, valida transportes nos dias adjacentes para definir em quais
+   datas os limites são ampliados.
 7. **RN-001, RN-002 e RN-003 — Limites:** aplica os limites diários e por
    diária sobre as despesas restantes.
 8. **RN-010 — Precisão monetária:** arredonda os valores finais para duas casas
@@ -442,16 +472,17 @@ O sistema está pronto quando:
 - [ ] Despesas fora do período de competência são recusadas e não consomem
   limites.
 - [ ] Categorias fora da política são recusadas.
-- [ ] Colaboradores com ao menos uma hospedagem no período têm limites
-  ampliados em 50%.
+- [ ] Somente despesas em dias de hospedagem têm limites ampliados em 50%; em
+  viagens internacionais, a véspera e o dia posterior também são ampliados
+  quando comprovados por transporte para aeroporto ou hotel na data adjacente.
 - [ ] Estornos reduzem o total reembolsável do período.
 - [ ] Todos os valores são arredondados para duas casas decimais.
 
 ## 10. O que fica em aberto
 
-- A detecção de viagem por presença de hospedagem é uma regra de negócio
-  provisória. Se o RH vier a fornecer um campo explícito `em_viagem`, a regra
-  deve ser substituída.
+- A detecção de viagem depende da descrição livre da hospedagem para identificar
+  `internacional`, check-in e checkout. Campos estruturados poderão substituir
+  essa convenção sem alterar os períodos de viagem definidos na RN-005.
 - A extração do número de diárias a partir da descrição é uma convenção
   provisória. O ideal seria um campo dedicado na entrada.
 - Despesas com campos obrigatórios ausentes ou mal formatados serão rejeitadas

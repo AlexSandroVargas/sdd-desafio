@@ -1,50 +1,123 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: unversioned placeholder → 1.0.0
+- Modified principles:
+  - Placeholder principles → I. A especificação é a fonte da verdade
+  - Placeholder principles → II. Ambiguidades devem ser resolvidas explicitamente
+  - Placeholder principles → III. Rastreabilidade completa é obrigatória
+  - Placeholder principles → IV. Mudanças entram pela especificação
+  - Placeholder principles → V. Evidência e verificação são parte da entrega
+- Added sections:
+  - Restrições e prioridades do desafio
+  - Fluxo de desenvolvimento e qualidade
+- Removed sections: none; placeholders were replaced by project governance
+- Follow-up TODOs:
+  - TODO(RATIFICATION_DATE): confirmar a data original de adoção da constituição do projeto
+-->
+# sdd-desafio Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. A especificação é a fonte da verdade
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+`specs/001-motor-reembolso/spec.md` MUST definir o que o sistema faz e por quê.
+`plan.md` MUST definir como a solução será construída, e `tasks.md` MUST definir a ordem do
+trabalho. Quando código e especificação divergirem, o código MUST ser tratado como defeituoso,
+a menos que a especificação seja corrigida primeiro. A especificação MUST NOT conter escolhas de
+linguagem, biblioteca, classe, função ou estrutura de arquivos. Uma pessoa sem contexto prévio
+MUST conseguir verificar o comportamento esperado lendo somente a especificação.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Racional: o desafio avalia principalmente a qualidade e a auditabilidade do processo, não apenas
+o funcionamento do produto.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Ambiguidades devem ser resolvidas explicitamente
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Cada ambiguidade de unidade, fronteira ou dado ausente MUST ser registrada em `spec.md` com ID
+`AMB-00X`, decisão explícita, justificativa de negócio e referência às regras `RN-00X` afetadas.
+Decisões de negócio MUST NOT existir somente no chat ou ser resolvidas silenciosamente no código.
+Quando o usuário fornecer uma regra nova, o trabalho de implementação MUST pausar até que a
+especificação e uma task correspondente sejam atualizadas. Itens existentes no exemplo de entrada
+MUST ser cobertos pela especificação ou declarados explicitamente fora de escopo.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Racional: tornar a interpretação verificável é parte central do desafio e evita conhecimento
+volátil ou implícito.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Rastreabilidade completa é obrigatória
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Toda regra de negócio MUST possuir um ID `RN-00X`, tasks relacionadas e testes automatizados.
+Toda task MUST referenciar a regra, história ou requisito que atende e ser pequena o suficiente
+para produzir um commit rastreável. Nenhum commit de implementação MUST existir sem task, e
+mensagens de commit MUST indicar a task ou o tipo de artefato documental alterado. Deve ser
+possível navegar de qualquer regra para sua task, código, teste e commit, e realizar o caminho
+inverso sem inferências. Histórico Git MUST NOT ser reescrito para ocultar falhas.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Racional: a cadeia `spec → task → código → teste → commit` constitui a evidência auditável da
+entrega.
+
+### IV. Mudanças entram pela especificação
+
+Toda mudança de requisito MUST seguir a ordem `spec → DECISIONS.md → tasks → código → testes`.
+Cada alteração da especificação MUST gerar uma entrada em `DECISIONS.md` contendo a mudança de
+estado anterior para novo, regra afetada, motivação, artefatos invalidados, tasks impactadas e
+custo. A especificação é um artefato vivo e MUST ser atualizada antes da implementação. Uma
+entrega parcial com especificação correta é preferível a uma implementação completa com
+especificação desatualizada.
+
+Racional: mudanças controladas demonstram que a arquitetura e o processo absorvem novos
+requisitos sem perder rastreabilidade.
+
+### V. Evidência e verificação são parte da entrega
+
+Cada sessão de trabalho MUST ser exportada para `docs/sessions/NN-descricao-curta.md`.
+`RELATORIO.md` MUST sustentar afirmações com referências a arquivos, commits ou sessões e MUST
+incluir pelo menos um erro concreto do agente, sua detecção e correção. Testes MUST ser executados
+e o diff MUST ser revisado antes de aceitar uma entrega; testes escritos pelo mesmo agente que
+implementou o código não constituem verificação humana suficiente. Uso de skills, subagentes,
+MCP ou hooks MUST ser registrado na seção de delegação do relatório.
+
+Racional: trabalho sem evidência reproduzível não pode ser avaliado nem auditado com confiança.
+
+## Restrições e prioridades do desafio
+
+- A especificação, `DECISIONS.md`, a convenção de commits, `docs/sessions/` e `RELATORIO.md` MUST
+  ser preservados mesmo quando houver restrição de tempo.
+- Escopo adicional de produto SHOULD ser cortado antes dos artefatos de processo, pois estes
+  concentram a maior parte da avaliação.
+- A solução SHOULD permanecer simples, modular e suficiente para o escopo documentado.
+  Complexidade adicional MUST possuir justificativa explícita no plano.
+- Regras de negócio MUST possuir testes automatizados. Casos de borda documentados MUST possuir
+  cenários de teste correspondentes.
+- Lacunas conhecidas MUST ser declaradas; relatórios e histórico MUST refletir o processo real.
+
+## Fluxo de desenvolvimento e qualidade
+
+1. Ler a especificação e a task correspondente antes de implementar.
+2. Se o pedido não estiver coberto, atualizar primeiro `spec.md`, `DECISIONS.md` e `tasks.md`.
+3. Escrever ou atualizar o teste, confirmar que ele falha pelo motivo esperado e só então alterar
+   a implementação.
+4. Executar testes relevantes e a suíte completa conforme o impacto da mudança.
+5. Revisar o diff contra a especificação, o plano, as tasks e esta constituição.
+6. Registrar decisões, evidências e limitações antes de considerar a sessão concluída.
+7. Criar commits pequenos e rastreáveis; alterações documentais MUST usar prefixos coerentes,
+   como `docs(spec):`, `docs(plan):` e `docs(tasks):`.
+
+As revisões MUST verificar, no mínimo: consistência entre artefatos, cobertura de cada RN, ausência
+de regra somente no chat, atualização de `DECISIONS.md`, execução dos testes e exportação da
+sessão.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Esta constituição governa todos os artefatos e práticas do projeto. Em caso de conflito, seus
+princípios prevalecem sobre conveniência, plano, tasks e implementação.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Emendas MUST ser propostas de forma explícita, revisadas pelo responsável humano e acompanhadas
+de relatório de impacto. Mudanças incompatíveis em princípios ou governança incrementam a versão
+MAJOR; novos princípios ou expansão material incrementam MINOR; esclarecimentos sem mudança
+semântica incrementam PATCH. A data de última alteração MUST ser atualizada em toda emenda.
+
+Toda revisão de especificação, plano, tasks ou código MUST verificar conformidade com esta
+constituição. Violações MUST ser corrigidas ou justificadas no plano antes da implementação. A
+constituição histórica da raiz, `constitution.sdd-desafio.md`, pode servir como referência, mas
+este arquivo é a autoridade operacional consumida pelo Spec Kit.
+
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): confirmar data original | **Last Amended**: 2026-10-18

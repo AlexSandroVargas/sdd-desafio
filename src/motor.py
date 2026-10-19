@@ -8,7 +8,7 @@ from .regras.estorno import eh_estorno
 from .regras.limites import aplicar_limites
 from .regras.nota_fiscal import nota_fiscal_valida
 from .regras.periodo import dentro_do_periodo
-from .regras.viagem import esta_em_viagem
+from .regras.viagem import dias_em_viagem
 
 
 class ErroEstrutural(ValueError):
@@ -45,23 +45,48 @@ def validar_entrada(entrada: dict) -> None:
             raise ErroEstrutural("periodo.competencia deve corresponder a inicio e fim")
     except (TypeError, ValueError) as erro:
         raise ErroEstrutural(f"Data de período inválida: {erro}") from erro
+
+
+def _erro_estrutural_despesa(despesa: object, indice: int, ids: set[str]) -> str | None:
+    contexto = f"despesas[{indice}]"
     campos = ("id", "data", "categoria", "descricao", "fornecedor", "valor", "tem_nota_fiscal")
-    ids = set()
-    for indice, despesa in enumerate(entrada["despesas"]):
-        contexto = f"despesas[{indice}]"
-        _exigir_campos(despesa, campos, contexto)
-        if despesa["id"] in ids:
-            raise ErroEstrutural(f"{contexto}.id deve ser único")
-        ids.add(despesa["id"])
-        try:
-            date.fromisoformat(despesa["data"])
-            decimal(despesa["valor"])
-        except (TypeError, ValueError) as erro:
-            raise ErroEstrutural(f"{contexto} contém data ou valor inválido") from erro
-        if not isinstance(despesa["tem_nota_fiscal"], bool):
-            raise ErroEstrutural(f"{contexto}.tem_nota_fiscal deve ser booleano")
-        if not all(isinstance(despesa[campo], str) for campo in ("id", "data", "categoria", "descricao", "fornecedor")):
-            raise ErroEstrutural(f"{contexto} contém campo textual inválido")
+    if not isinstance(despesa, dict):
+        return f"{contexto} deve ser um objeto"
+    ausentes = [campo for campo in campos if campo not in despesa]
+    if ausentes:
+        return f"Campo obrigatório ausente em {contexto}: {', '.join(ausentes)}"
+    extras = [campo for campo in despesa if campo not in campos]
+    if extras:
+        return f"Campo não permitido em {contexto}: {', '.join(extras)}"
+    if not all(isinstance(despesa[campo], str) for campo in ("id", "data", "categoria", "descricao", "fornecedor")):
+        return f"{contexto} contém campo textual inválido"
+    if despesa["id"] in ids:
+        return f"{contexto}.id deve ser único"
+    try:
+        date.fromisoformat(despesa["data"])
+        decimal(despesa["valor"])
+    except (TypeError, ValueError):
+        return f"{contexto} contém data ou valor inválido"
+    if not isinstance(despesa["tem_nota_fiscal"], bool):
+        return f"{contexto}.tem_nota_fiscal deve ser booleano"
+    ids.add(despesa["id"])
+    return None
+
+
+def _rejeitado_estrutural(despesa: object, indice: int, motivo: str) -> dict:
+    item = despesa if isinstance(despesa, dict) else {}
+    try:
+        valor = float(decimal(item.get("valor", 0)))
+    except (TypeError, ValueError):
+        valor = 0.0
+    return {
+        "id": item.get("id") if isinstance(item.get("id"), str) else f"despesa-{indice}",
+        "data": item.get("data") if isinstance(item.get("data"), str) else "",
+        "categoria": item.get("categoria", "").lower() if isinstance(item.get("categoria"), str) else "",
+        "valor_declarado": valor, "valor_reembolsavel": 0.0,
+        "valor_nao_reembolsavel": 0.0, "status": "rejeitado",
+        "motivo": f"Erro estrutural: {motivo}",
+    }
 
 
 def _rejeitado(despesa: dict, categoria: str, motivo: str) -> dict:
@@ -75,33 +100,38 @@ def _rejeitado(despesa: dict, categoria: str, motivo: str) -> dict:
 def processar(entrada: dict) -> dict:
     validar_entrada(entrada)
     periodo = entrada["periodo"]
-    resultados: dict[str, dict] = {}
+    resultados: dict[int, dict] = {}
     elegiveis = []
     vistos = set()
+    ids = set()
     duplicatas = []
     estornos = Decimal("0")
     for indice, original in enumerate(entrada["despesas"]):
+        erro = _erro_estrutural_despesa(original, indice, ids)
+        if erro:
+            resultados[indice] = _rejeitado_estrutural(original, indice, erro)
+            continue
         categoria = original["categoria"].lower()
         normalizada = normalizar_categoria(original["categoria"])
         if normalizada is None:
-            resultados[original["id"]] = _rejeitado(original, categoria, "Categoria fora da política")
+            resultados[indice] = _rejeitado(original, categoria, "Categoria fora da política")
             continue
         if not dentro_do_periodo(original["data"], periodo):
-            resultados[original["id"]] = _rejeitado(original, normalizada, "Fora do período de competência")
+            resultados[indice] = _rejeitado(original, normalizada, "Fora do período de competência")
             continue
         if not nota_fiscal_valida(original["valor"], original["tem_nota_fiscal"]):
-            resultados[original["id"]] = _rejeitado(original, normalizada, "Nota fiscal obrigatória acima de R$ 100,00 ausente")
+            resultados[indice] = _rejeitado(original, normalizada, "Nota fiscal obrigatória acima de R$ 100,00 ausente")
             continue
         despesa = dict(original, categoria=normalizada, indice=indice)
         chave = chave_duplicata(despesa)
         if chave in vistos:
-            resultados[original["id"]] = _rejeitado(original, normalizada, "Despesa duplicada")
+            resultados[indice] = _rejeitado(original, normalizada, "Despesa duplicada")
             duplicatas.append(original["id"])
             continue
         vistos.add(chave)
         if eh_estorno(original["valor"]):
             estornos += abs(decimal(original["valor"]))
-            resultados[original["id"]] = {
+            resultados[indice] = {
                 "id": original["id"], "data": original["data"], "categoria": normalizada,
                 "valor_declarado": original["valor"], "valor_reembolsavel": 0.0,
                 "valor_nao_reembolsavel": 0.0, "status": "estorno",
@@ -109,7 +139,7 @@ def processar(entrada: dict) -> dict:
             }
             continue
         elegiveis.append(despesa)
-    reembolsos = aplicar_limites(elegiveis, esta_em_viagem(entrada["despesas"], periodo))
+    reembolsos = aplicar_limites(elegiveis, dias_em_viagem(elegiveis, periodo))
     for despesa in elegiveis:
         declarado = decimal(despesa["valor"])
         reembolsavel = reembolsos[despesa["id"]]
@@ -120,15 +150,15 @@ def processar(entrada: dict) -> dict:
             nao_reembolsavel = arredondar(declarado - reembolsavel)
         else:
             status, motivo, nao_reembolsavel = "rejeitado", "Limite aplicável esgotado", Decimal("0")
-        resultados[despesa["id"]] = {
+        resultados[despesa["indice"]] = {
             "id": despesa["id"], "data": despesa["data"], "categoria": despesa["categoria"],
             "valor_declarado": despesa["valor"], "valor_reembolsavel": float(reembolsavel),
             "valor_nao_reembolsavel": float(nao_reembolsavel), "status": status, "motivo": motivo,
         }
-    despesas = [resultados[item["id"]] for item in entrada["despesas"]]
+    despesas = [resultados[indice] for indice in range(len(entrada["despesas"]))]
     total_reembolsavel = sum((decimal(item["valor_reembolsavel"]) for item in despesas), Decimal("0")) - estornos
     resumo = {
-        "total_declarado": float(arredondar(sum((decimal(item["valor"]) for item in entrada["despesas"]), Decimal("0")))),
+        "total_declarado": float(arredondar(sum((decimal(item["valor_declarado"]) for item in despesas), Decimal("0")))),
         "total_reembolsavel": float(arredondar(total_reembolsavel)),
         "total_nao_reembolsavel": float(arredondar(sum((decimal(item["valor_nao_reembolsavel"]) for item in despesas), Decimal("0")))),
         "total_rejeitado": float(arredondar(sum((decimal(item["valor_declarado"]) for item in despesas if item["status"] == "rejeitado"), Decimal("0")))),

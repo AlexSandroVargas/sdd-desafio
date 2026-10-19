@@ -8,10 +8,11 @@ def test_contrato_rejeita_campo_raiz_ausente():
         processar({"colaborador": {}, "periodo": {}})
 
 
-def test_contrato_rejeita_tipo_booleano_invalido(entrada_base):
+def test_contrato_rejeita_apenas_despesa_com_tipo_booleano_invalido(entrada_base):
     entrada_base["despesas"][0]["tem_nota_fiscal"] = "sim"
-    with pytest.raises(ErroEstrutural, match="tem_nota_fiscal"):
-        processar(entrada_base)
+    item = processar(entrada_base)["despesas"][0]
+    assert item["status"] == "rejeitado"
+    assert "tem_nota_fiscal" in item["motivo"]
 
 
 def test_contrato_rejeita_periodo_invertido(entrada_base):
@@ -20,7 +21,9 @@ def test_contrato_rejeita_periodo_invertido(entrada_base):
         processar(entrada_base)
 
 
-def test_contrato_rejeita_propriedade_nao_prevista(entrada_base):
+def test_contrato_rejeita_apenas_despesa_com_propriedade_nao_prevista(entrada_base):
+    entrada_base["despesas"].append(dict(entrada_base["despesas"][0], id="d-2", valor=20))
     entrada_base["despesas"][0]["moeda"] = "BRL"
-    with pytest.raises(ErroEstrutural, match="não permitido"):
-        processar(entrada_base)
+    itens = processar(entrada_base)["despesas"]
+    assert [item["status"] for item in itens] == ["rejeitado", "aprovado"]
+    assert "não permitido" in itens[0]["motivo"]

@@ -44,7 +44,7 @@
   "definitions": {
     "despesa": {
       "type": "object",
-      "required": ["id", "data", "categoria", "descricao", "fornecedor", "valor", "tem_nota_fiscal"],
+      "description": "A estrutura de cada item é validada pelo motor; itens malformados geram resultado rejeitado sem interromper os demais.",
       "properties": {
         "id": { "type": "string" },
         "data": {
@@ -57,7 +57,7 @@
         "valor": { "type": "number" },
         "tem_nota_fiscal": { "type": "boolean" }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     }
   }
 }

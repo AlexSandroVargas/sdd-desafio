@@ -102,11 +102,11 @@ description: "Task list for 001-motor-reembolso implementation"
 
 ### Implementation for User Story 2
 
-- [x] T027 [P] [US2] Implement `src/regras/viagem.py` for RN-005: `em_viagem` = true when at least one `hospedagem` expense exists in period
+- [x] T027 [P] [US2] Implement `src/regras/viagem.py` for RN-005: determine national lodging dates and international adjacent dates supported by airport/hotel transport
 - [x] T028 [P] [US2] Implement `src/regras/limites.py` for RN-001, RN-002, RN-003:
   - Group alimentacao/transporte_urbano by date, sort by declared value descending (tie preserves input order)
   - Apply daily limit sequentially: full refund while budget remains, first excess gets partial remainder, others rejected
-  - Hospedagem limit = R$ 250.00 × inferred diarias (default 1), parsed from `descricao`; in travel mode multiply limits by 1.50
+  - Hospedagem limit = R$ 250.00 × inferred diarias (default 1), parsed from `descricao`; multiply limits by 1.50 only on dates identified as travel days
 - [x] T029 [US2] Integrate limit application into `src/motor.py` pipeline after eligibility rules and travel detection
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -244,3 +244,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+---
+
+## Phase 7: Convergence
+
+- [x] T045 CRITICAL Register the RN-005 travel-day change and accepted clarifications in the canonical `DECISIONS.md`, including previous/new behavior, rationale, invalidated artifacts, affected tasks, and cost, per Constitution IV and T038 (missing)
+- [x] T046 CRITICAL Add an automated acceptance test proving that a R$ 800.00 lodging expense for two travel diárias is capped at the expanded R$ 750.00 limit per Constitution III and RN-003/RN-005 (missing)
+- [x] T047 CRITICAL Provide `RELATORIO.md` at the canonical repository-root location with evidence links, decisions, delegation usage, and a concrete agent-error account, or align all governing artifacts to the justified canonical path, per Constitution V and T044 (missing)
+- [x] T048 Make lodging-limit expansion follow the stay dates derived from explicit check-in/checkout even when `despesa.data` differs, and cover the behavior in unit and pipeline tests, per RN-003/RN-005 (partial)
+- [x] T049 Align structural validation with the specified behavior of recording a malformed expense error while continuing to process the remaining expenses, including contract and CLI tests, per spec section 3 (contradicts)
+- [x] T050 Integrate the `src/modelos.py` entities into validation and result construction or record and propagate the formal decision to retain dictionary-based processing, per plan validation-layer decision and T005/T033 (partial)

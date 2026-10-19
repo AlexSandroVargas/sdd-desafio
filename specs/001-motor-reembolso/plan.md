@@ -88,7 +88,7 @@ specs/001-motor-reembolso/
 src/
 ├── cli.py                 # argparse entry point: subcommand "calcular"
 ├── motor.py               # orchestrates pipeline: parse → validate → calculate → emit
-├── modelos.py           # dataclasses for input/output entities
+├── modelos.py           # reference dataclasses; runtime pipeline uses validated dictionaries
 └── regras/
     ├── __init__.py
     ├── config.py          # policy limits and travel multiplier
@@ -97,7 +97,7 @@ src/
     ├── nota_fiscal.py     # RN-004: mandatory invoice above R$ 100
     ├── duplicata.py       # RN-006: duplicate detection
     ├── estorno.py         # RN-009: negative-value handling
-    ├── viagem.py          # RN-005: travel detection from lodging
+    ├── viagem.py          # RN-005: travel dates from lodging and adjacent transport
     ├── limites.py         # RN-001, RN-002, RN-003: daily limits
     └── arredondamento.py  # RN-010: half-up rounding to cents
 
@@ -128,8 +128,8 @@ constitution.
 ```text
 ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌─────────────┐
 │  JSON file  │───▶│   CLI/IO     │───▶│  Validation &   │───▶│ Rule Engine │
-│  (input)    │    │  (cli.py)    │    │  Models         │    │ (motor.py + │
-└─────────────┘    └──────────────┘    │  (modelos.py)   │    │ regras/*)   │
+│  (input)    │    │  (cli.py)    │    │  Validation     │    │ (motor.py + │
+└─────────────┘    └──────────────┘    │  (motor.py)     │    │ regras/*)   │
                                          └─────────────────┘    └──────┬──────┘
                                                                         │
                                                                         ▼
@@ -140,10 +140,10 @@ constitution.
 ```
 
 **Fronteiras:**
-- **I/O layer (`cli.py`)**: reads/writes files, prints errors to `stderr`, exits
-  with non-zero on structural failures.
-- **Validation layer (`modelos.py` + helpers)**: checks schema and business
-  invariants before calculation.
+- **I/O layer (`cli.py`)**: reads/writes files, prints document-level errors to
+  `stderr` and exits non-zero; malformed expense items are emitted as rejected.
+- **Validation layer (`motor.py` helpers)**: checks schema and business invariants
+  over dictionaries before calculation; `modelos.py` documents reference entities.
 - **Rule engine (`motor.py` + `regras/*`)**: pure functions that transform input
   into output. No side effects, no file access.
 

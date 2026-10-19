@@ -27,6 +27,25 @@ def test_rn003_hospedagem_sem_quantidade_assume_uma_diaria():
     assert valores["d-1"] == Decimal("250.00")
 
 
+def test_rn003_rn005_hospedagem_em_viagem_recebe_limite_ampliado():
+    valores = aplicar_limites(
+        [despesa("d-1", "hospedagem", 800, "Hotel - 2 diarias")],
+        {"2026-07-03", "2026-07-04"},
+    )
+    assert valores["d-1"] == Decimal("750.00")
+
+
 def test_rn005_viagem_amplia_limites_em_cinquenta_por_cento():
-    valores = aplicar_limites([despesa("d-1", "alimentacao", 72.5), despesa("d-2", "alimentacao", 38)], True)
-    assert valores == {"d-1": Decimal("72.50"), "d-2": Decimal("17.50")}
+    valores = aplicar_limites(
+        [
+            despesa("d-1", "alimentacao", 72.5),
+            despesa("d-2", "alimentacao", 38),
+            despesa("d-3", "alimentacao", 70, data="2026-07-04"),
+        ],
+        {"2026-07-03"},
+    )
+    assert valores == {
+        "d-1": Decimal("72.50"),
+        "d-2": Decimal("17.50"),
+        "d-3": Decimal("60.00"),
+    }

@@ -54,7 +54,7 @@ de negócio.
 | `id` | string | sim | Identificador único da despesa |
 | `data` | string | sim | Data da despesa no formato `YYYY-MM-DD` |
 | `categoria` | string | sim | Categoria da despesa |
-| `descricao` | string | sim | Descrição livre da despesa |
+| `descricao` | string | sim | Descrição livre; na hospedagem pode indicar `internacional`, check-in, checkout e diárias para determinar os dias de viagem |
 | `fornecedor` | string | sim | Nome do fornecedor |
 | `valor` | número | sim | Valor declarado da despesa |
 | `tem_nota_fiscal` | boolean | sim | Indica se há nota fiscal |

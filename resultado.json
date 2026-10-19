@@ -11,9 +11,9 @@
   },
   "resumo": {
     "total_declarado": 2266.84,
-    "total_reembolsavel": 1246.43,
-    "total_nao_reembolsavel": 45.5,
-    "total_rejeitado": 974.91,
+    "total_reembolsavel": 1195.43,
+    "total_nao_reembolsavel": 58.5,
+    "total_rejeitado": 1012.91,
     "quantidade_despesas": 16
   },
   "despesas": [
@@ -22,30 +22,30 @@
       "data": "2026-07-03",
       "categoria": "alimentacao",
       "valor_declarado": 72.5,
-      "valor_reembolsavel": 72.5,
-      "valor_nao_reembolsavel": 0.0,
-      "status": "aprovado",
-      "motivo": "Despesa aprovada"
+      "valor_reembolsavel": 60.0,
+      "valor_nao_reembolsavel": 12.5,
+      "status": "parcial",
+      "motivo": "Limite aplicável excedido"
     },
     {
       "id": "d-002",
       "data": "2026-07-03",
       "categoria": "alimentacao",
       "valor_declarado": 38.0,
-      "valor_reembolsavel": 17.5,
-      "valor_nao_reembolsavel": 20.5,
-      "status": "parcial",
-      "motivo": "Limite aplicável excedido"
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Limite aplicável esgotado"
     },
     {
       "id": "d-003",
       "data": "2026-07-06",
       "categoria": "transporte_urbano",
       "valor_declarado": 100.0,
-      "valor_reembolsavel": 100.0,
-      "valor_nao_reembolsavel": 0.0,
-      "status": "aprovado",
-      "motivo": "Despesa aprovada"
+      "valor_reembolsavel": 80.0,
+      "valor_nao_reembolsavel": 20.0,
+      "status": "parcial",
+      "motivo": "Limite aplicável excedido"
     },
     {
       "id": "d-004",
@@ -152,10 +152,10 @@
       "data": "2026-07-31",
       "categoria": "alimentacao",
       "valor_declarado": 61.0,
-      "valor_reembolsavel": 61.0,
-      "valor_nao_reembolsavel": 0.0,
-      "status": "aprovado",
-      "motivo": "Despesa aprovada"
+      "valor_reembolsavel": 60.0,
+      "valor_nao_reembolsavel": 1.0,
+      "status": "parcial",
+      "motivo": "Limite aplicável excedido"
     },
     {
       "id": "d-015",

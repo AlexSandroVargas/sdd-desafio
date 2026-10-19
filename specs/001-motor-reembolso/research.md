@@ -162,16 +162,18 @@ para aplicar o fator de viagem.
 
 ## R-008 — Tratamento de erros estruturais
 
-**Decision:** Erros de schema (campo obrigatório ausente ou mal formatado)
-interrompem o processamento com mensagem clara em `stderr` e retorno diferente
-de zero.
+**Decision:** Erros estruturais no documento, colaborador ou período interrompem
+o processamento com mensagem em `stderr` e retorno diferente de zero. Uma
+despesa individual malformada é registrada como rejeitada, sem interromper as
+demais.
 
 **Rationale:**
-- A spec declara que campos obrigatórios ausentes serão rejeitados com erro
-  estrutural, mas o tratamento detalhado fica no plano.
-- Falhar rápido (`fail fast`) é mais seguro do que gerar uma saída parcialmente
-  válida para uma entrada inválida.
+- Colaborador e período definem o contexto de todo o cálculo e precisam ser
+  válidos para qualquer resultado ser produzido.
+- Uma despesa é uma unidade independente; rejeitá-la preserva o processamento
+  das demais conforme a spec.
 
 **Alternatives considered:**
-- Continuar processando despesas válidas mesmo com erro estrutural: rejeitado
-  porque um campo ausente no `periodo.fim`, por exemplo, invalida todo o cálculo.
+- Falhar rápido diante de qualquer item inválido: rejeitado porque descartaria
+  despesas válidas sem necessidade.
+- Tentar completar campos ausentes: rejeitado porque inventaria dados.

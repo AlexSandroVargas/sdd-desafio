@@ -1,6 +1,6 @@
 # Relatório — Desafio SDD
 
-**Aluno:** `<nome>` · **Repositório:** `<link>` · **Data:** `<data>`
+**Aluno:** `Alex Sandro Vargas` · **Repositório:** `https://github.com/AlexSandroVargas/sdd-desafio` · **Data:** `19-10-2026`
 
 > Isto não é redação. São **evidências**. Toda afirmação deve vir acompanhada de
 > arquivo, hash de commit ou trecho de sessão exportada. Um parágrafo bonito sem

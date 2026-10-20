@@ -11,3 +11,4 @@
 | 2026-10-18 | 21:02 | [08-ajuste-rn-005-viagem.md](08-ajuste-rn-005-viagem.md) | 2c94789 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/2c94789) |
 | 2026-10-18 | 22:16 | [09-ajuste-AMB-003.md](09-ajuste-AMB-003.md) | abc32d5 | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/abc32d5) |
 | 2026-10-19 | 00:21 | [10-envelope.md](10-envelope.md) | b17f20e | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/b17f20e) |
+| 2026-10-19 | 21:09 | [11-ajuste-final.md](11-ajuste-final.md) | bff172b | [link](https://github.com/AlexSandroVargas/sdd-desafio/commit/bff172b) |

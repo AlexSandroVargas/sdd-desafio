@@ -26,9 +26,18 @@ def _intervalo(inicio: date, fim: date) -> set[date]:
     return {inicio + timedelta(days=indice) for indice in range((fim - inicio).days + 1)}
 
 
+def _dias_com_moeda_estrangeira(despesas: list[dict]) -> set[str]:
+    return {
+        despesa["data"]
+        for despesa in despesas
+        if despesa.get("moeda", "BRL") != "BRL"
+    }
+
+
 def dias_em_viagem(despesas: list[dict], periodo: dict) -> set[str]:
     inicio_periodo = date.fromisoformat(periodo["inicio"])
     fim_periodo = date.fromisoformat(periodo["fim"])
+    dias_moeda_estrangeira = _dias_com_moeda_estrangeira(despesas)
     transportes = {
         date.fromisoformat(despesa["data"])
         for despesa in despesas
@@ -52,11 +61,12 @@ def dias_em_viagem(despesas: list[dict], periodo: dict) -> set[str]:
                 dias.add(vespera)
             if dia_seguinte in transportes:
                 dias.add(dia_seguinte)
-    return {
+    dias_viagem = {
         dia.isoformat()
         for dia in dias
         if inicio_periodo <= dia <= fim_periodo
     }
+    return dias_viagem | dias_moeda_estrangeira
 
 
 def esta_em_viagem(despesas: list[dict], periodo: dict) -> bool:

@@ -1,0 +1,66 @@
+{
+  "colaborador": {
+    "id": "c-1103",
+    "nome": "Dani Okonkwo",
+    "centro_custo": "CC-SUPORTE-N2"
+  },
+  "periodo": {
+    "competencia": "2026-07",
+    "inicio": "2026-07-01",
+    "fim": "2026-07-31"
+  },
+  "resumo": {
+    "total_declarado": 570.0,
+    "total_reembolsavel": 433.76,
+    "total_nao_reembolsavel": 0.0,
+    "total_rejeitado": 190.0,
+    "quantidade_despesas": 4
+  },
+  "despesas": [
+    {
+      "id": "f-001",
+      "data": "2026-07-16",
+      "categoria": "alimentacao",
+      "valor_declarado": 58.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 58.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "f-002",
+      "data": "2026-07-17",
+      "categoria": "hospedagem",
+      "valor_declarado": 310.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 310.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "f-003",
+      "data": "2026-07-17",
+      "categoria": "representacao",
+      "valor_declarado": 190.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Categoria fora da política"
+    },
+    {
+      "id": "f-004",
+      "data": "2026-07-21",
+      "categoria": "transporte_urbano",
+      "valor_declarado": 12.0,
+      "moeda": "USD",
+      "valor_reembolsavel": 65.76,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    }
+  ],
+  "alertas": []
+}

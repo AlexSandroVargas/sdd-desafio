@@ -139,29 +139,38 @@ Os testes foram escritos pelo Devin antes da implementação e inicialmente falh
 
 *A mudança de requisito do Dia 2.*
 
-**Quantos arquivos toquei na mão:** `<n>`
-**Quanto tempo levou:** `<...>`
-**Diff de absorção:** `<n> arquivos, +<n>/-<n> linhas` (`git diff <hash-antes> HEAD --stat`)
+**Quantos arquivos toquei na mão:** `nenhum (apenas o RELATORIO.md)`
+**Quanto tempo levou:** `~3 horas`
+**Diff de absorção:** `47 arquivos, +1791/-291 linhas` (`git diff <hash-antes> HEAD --stat`)
 
-**Absorveu de graça:** <o que a arquitetura já suportava e por quê>
+**Absorveu de graça:** Já suportava viagens internacionais e nacionais para calcular periodo em viagem.
 
-**Resistiu:** <o que teve que ser quebrado e por quê>
+**Resistiu:** A regra que define viagem internacional antes do envelope não utiliava moeda estrangeira.
 
 **Ordem em que fiz:** <spec → tasks → código? ou código → spec? seja honesto:
-a correção vê os timestamps dos commits de qualquer forma>
+spec → plan → tasks → implement
+foi mais de um ciclo, as vezes com clarify
 
 **Se eu tivesse escrito a spec original sabendo desta mudança:**
+Bom, teria sido doferente, mas não sei extamente o que responder ... honestamente
 
 **O que a spec me poupou, em concreto:**
+Vou responder considerando "spec" como toda a skill spec-kit
+A spec-kit me poupou muito, muito tempo, além de não me preocupar com formatos de arquivos, código, sintaxe, etc, e até mesmo a lingua portuguesa. Apenas revisei as regras de negócio, ambiguidades detectadas, etc. A skill escreveu tudo.
 
 ---
 
 ## Fechamento
 
 **Para qual tamanho de projeto isto valeu a pena?**
+Projetos de uma única aplicação, que era este caso. Eu antes deste desafio já estava utilizando SDD com a spec-kit para documentar uma app java legada, para gerar regras de negócio. 
 
 **Para qual não valeria?**
+Honestamente não sei como seria utilizar em um conjunto de apps interagindo entre si,
+então consideraria uma app por vez.
 
 **O que eu faria diferente:**
+Acho que não faria diferente, talvez testar melhor a skill para registrar commits e fazer push, que gerou um pouco mais do que eu gostaria no inicio.
 
 **A coisa mais desconfortável que aprendi sobre como eu trabalho com IA:**
+Ao mesmo tempo que é rápida e automatiza, precisa de maturidade na supervisão.

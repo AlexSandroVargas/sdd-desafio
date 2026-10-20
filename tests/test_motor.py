@@ -68,10 +68,11 @@ def test_pipeline_exemplo_envelope_cc_comercial():
     entrada = _carregar("exemplos/envelope/despesas-envelope.json")
     resultado = processar(entrada)
     status_por_id = {item["id"]: item["status"] for item in resultado["despesas"]}
-    assert status_por_id["e-001"] == "parcial"    # representacao 340 > 300
-    # e-002: EUR 22 * 5,93 = 130,46 BRL; tem nota, mas ultrapassa limite alimentacao 90 -> parcial
-    assert status_por_id["e-002"] == "parcial"
-    # e-003: EUR 14,50 * 5,88 = 85,26 BRL <= 90, sem nota ok -> aprovado
+    # e-001: representacao BRL 340 > limite 300 -> parcial
+    assert status_por_id["e-001"] == "parcial"
+    # e-002: EUR 22 * 5,93 = 130,46 BRL; tem nota; alimentacao 90*1,5 = 135 -> aprovado
+    assert status_por_id["e-002"] == "aprovado"
+    # e-003: EUR 14,50 * 5,88 = 85,26 BRL <= 90*1,5 = 135, sem nota ok -> aprovado
     assert status_por_id["e-003"] == "aprovado"
     assert status_por_id["e-006"] == "rejeitado" # GBP sem cotacao
     # e-007: 3 noites * limite 400*1,5 = 1800; 1200 <= 1800 -> aprovado

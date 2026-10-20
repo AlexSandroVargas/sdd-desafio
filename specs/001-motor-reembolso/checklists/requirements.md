@@ -48,6 +48,10 @@
 - `.specify/feature.json` could not be written because the file is matched by
   `.specify/.gitignore` and the tool refused to modify ignored files. The
   feature directory was still created at `specs/001-motor-reembolso`.
-- Implementation completed: all v4 tasks T051–T070 are done, 66 tests pass,
+- Implementation completed: all v4 tasks T051–T070 are done, 68 tests pass,
   schemas validated, and envelope examples (`despesas-envelope.json`,
   `despesas-envelope-cc-desconhecido.json`) are covered by integration tests.
+- Post-implementation adjustment (2026-10-19): `RN-005` now considers any
+  foreign-currency expense on a given day as international travel for that day
+  only, amplifying limits of eligible expenses on that day; national-currency
+  expenses keep the original travel checks. Recorded as D-006 in `DECISIONS.md`.

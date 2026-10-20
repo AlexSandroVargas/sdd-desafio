@@ -4,7 +4,6 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from .arredondamento import arredondar, decimal
-from .config import FATOR_VIAGEM
 from .politica import Politica, limites_do_centro
 
 
@@ -35,13 +34,19 @@ def _data_viagem_hospedagem(data_despesa: str, descricao: str) -> str:
     return data_despesa
 
 
+def _fator_viagem(politica: Politica, data: str, descricao: str, dias_em_viagem: set[str]) -> Decimal:
+    data_viagem = _data_viagem_hospedagem(data, descricao) if descricao else data
+    if data_viagem in dias_em_viagem:
+        return Decimal("1") + (decimal(politica.acrescimo_em_viagem_percentual) / Decimal("100"))
+    return Decimal("1")
+
+
 def _limite_do_centro(
     politica: Politica, centro_custo: str, categoria: str, data: str, descricao: str, dias_em_viagem: set[str]
 ) -> Decimal:
     limites = limites_do_centro(politica, centro_custo)
     teto_categoria = limites[categoria]["limite"]
-    data_viagem = _data_viagem_hospedagem(data, descricao) if categoria == "hospedagem" else data
-    fator = FATOR_VIAGEM if data_viagem in dias_em_viagem else Decimal("1")
+    fator = _fator_viagem(politica, data, descricao, dias_em_viagem)
     if categoria == "hospedagem":
         return decimal(teto_categoria) * fator * inferir_diarias(descricao)
     return decimal(teto_categoria) * fator

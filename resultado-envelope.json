@@ -1,0 +1,132 @@
+{
+  "colaborador": {
+    "id": "c-0912",
+    "nome": "Rafael Nkemelu",
+    "centro_custo": "CC-COMERCIAL"
+  },
+  "periodo": {
+    "competencia": "2026-07",
+    "inicio": "2026-07-01",
+    "fim": "2026-07-31"
+  },
+  "resumo": {
+    "total_declarado": 2004.5,
+    "total_reembolsavel": 1898.72,
+    "total_nao_reembolsavel": 40.0,
+    "total_rejeitado": 245.0,
+    "quantidade_despesas": 10
+  },
+  "despesas": [
+    {
+      "id": "e-001",
+      "data": "2026-07-13",
+      "categoria": "representacao",
+      "valor_declarado": 340.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 300.0,
+      "valor_nao_reembolsavel": 40.0,
+      "status": "parcial",
+      "motivo": "Limite diário excedido"
+    },
+    {
+      "id": "e-002",
+      "data": "2026-07-14",
+      "categoria": "alimentacao",
+      "valor_declarado": 22.0,
+      "moeda": "EUR",
+      "valor_reembolsavel": 130.46,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "e-003",
+      "data": "2026-07-15",
+      "categoria": "alimentacao",
+      "valor_declarado": 14.5,
+      "moeda": "EUR",
+      "valor_reembolsavel": 85.26,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "e-004",
+      "data": "2026-07-18",
+      "categoria": "alimentacao",
+      "valor_declarado": 30.0,
+      "moeda": "EUR",
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Moeda ou data sem cotação disponível"
+    },
+    {
+      "id": "e-005",
+      "data": "2026-07-20",
+      "categoria": "transporte_urbano",
+      "valor_declarado": 40.0,
+      "moeda": "USD",
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Nota fiscal obrigatória acima de R$ 100,00 ausente"
+    },
+    {
+      "id": "e-006",
+      "data": "2026-07-21",
+      "categoria": "representacao",
+      "valor_declarado": 55.0,
+      "moeda": "GBP",
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Moeda ou data sem cotação disponível"
+    },
+    {
+      "id": "e-007",
+      "data": "2026-07-22",
+      "categoria": "hospedagem",
+      "valor_declarado": 1200.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 1200.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "e-008",
+      "data": "2026-07-23",
+      "categoria": "alimentacao",
+      "valor_declarado": 95.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 95.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    },
+    {
+      "id": "e-009",
+      "data": "2026-07-24",
+      "categoria": "coworking",
+      "valor_declarado": 120.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 0.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "rejeitado",
+      "motivo": "Categoria fora da política"
+    },
+    {
+      "id": "e-010",
+      "data": "2026-07-27",
+      "categoria": "alimentacao",
+      "valor_declarado": 88.0,
+      "moeda": "BRL",
+      "valor_reembolsavel": 88.0,
+      "valor_nao_reembolsavel": 0.0,
+      "status": "aprovado",
+      "motivo": "Despesa aprovada"
+    }
+  ],
+  "alertas": []
+}

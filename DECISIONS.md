@@ -2,6 +2,34 @@
 
 Ordem cronológica inversa: a mais recente primeiro.
 
+## D-006 — Moeda estrangeira aciona ampliação de limites no dia da despesa · `2026-10-19`
+
+**Gatilho:** Reinterpretação da `RN-005` após análise do envelope v4.
+
+**Decisão:** Se houver qualquer despesa declarada em moeda estrangeira em um dia,
+esse dia específico é considerado dia de viagem internacional, ampliando os
+limites das despesas elegíveis naquele dia pelo percentual configurado na política
+do centro de custo. Na ausência de moeda estrangeira no dia, a verificação de
+viagem segue os critérios originais de hospedagem nacional/internacional. O
+percentual de ampliação passa a ser lido da política externa em vez de valor fixo
+na redação.
+
+**Por quê:** A moeda estrangeira indica operação internacional na data da despesa,
+não em todo o período de competência, evitando ampliação indevida de despesas
+nacionais em dias sem viagem.
+
+**O que isso invalidou:** Interpretação anterior de que moeda estrangeira
+ampliava limites em todo o período; interpretação anterior de que apenas menção
+`internacional` ou hospedagem identificavam viagem; redação da RN-005 com
+percentual fixo de 50%.
+
+**Tasks afetadas:** T055–T070 (implementação v4), especialmente T059 e T063.
+
+**Custo:** Ajuste de `spec.md`, `src/regras/viagem.py`, `src/regras/limites.py` e
+revisão dos testes de envelope.
+
+---
+
 ## D-005 — Adoção da Política de Reembolso v4 · `2026-10-18`
 
 **Gatilho:** Comunicado do RH no envelope `exemplos/envelope/00-ENVELOPE-LACRADO.md`

@@ -10,6 +10,46 @@ Ordem cronológica inversa: a mais recente primeiro.
 
 ---
 
+## D-006 — Moeda estrangeira aciona ampliação de limites no dia da despesa · `2026-10-19`
+
+**Gatilho:** Reinterpretação da `RN-005` após análise do envelope: a política v4
+considera que despesas em moeda estrangeira indicam viagem internacional apenas
+nos dias em que ocorrem.
+
+**O que mudou na spec:**
+- `RN-005` foi reescrita em duas etapas:
+  1. Se houver qualquer despesa declarada em moeda estrangeira em um dia, esse
+     dia específico é considerado dia de viagem internacional e os limites das
+     despesas elegíveis naquele dia são ampliados pelo percentual definido na
+     política do centro de custo.
+  2. Na ausência de despesa em moeda estrangeira no dia, a verificação de viagem
+     segue os critérios originais (hospedagem nacional/internacional,
+     check-in/checkout e transporte para aeroporto/hotel).
+- O percentual de ampliação deixa de ser fixo em 50% na redação da regra e passa
+  a ser o valor configurado na política externa (`acrescimo_em_viagem_percentual`).
+
+**Por quê:** A moeda estrangeira indica operação internacional na data da despesa,
+não em todo o período de competência. Isso evita ampliação indevida de despesas
+nacionais em dias sem viagem.
+
+**O que isso invalidou:**
+- A interpretação anterior de que a presença de moeda estrangeira ampliava
+  limites em todo o período.
+- A interpretação anterior de que apenas menção `internacional` na descrição ou
+  hospedagem identificavam viagem internacional.
+- A suposição de ampliação fixa de 50% na redação da regra (o valor continua
+  vindo da política, que na v4 é 50%).
+- Testes de integração do envelope `CC-COMERCIAL`, que agora esperam ampliação
+  apenas nos dias com despesas em EUR.
+
+**Tasks afetadas:** T055–T070 (implementação v4), especialmente T063 (wiring do
+motor), T059 (limites) e os testes de integração T064–T065.
+
+**Custo:** Ajuste da `spec.md`, atualização de `src/regras/viagem.py` e
+`src/regras/limites.py`, revisão dos testes de envelope.
+
+---
+
 ## D-005 — Adoção da Política de Reembolso v4 · `2026-10-18`
 
 **Gatilho:** Comunicado do RH (envelope lacrado `00-ENVELOPE-LACRADO.md`)

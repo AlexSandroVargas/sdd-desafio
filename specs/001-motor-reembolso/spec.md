@@ -204,24 +204,34 @@ em BRL R$ 130,46; rejeitada por falta de nota. Uma corrida de R$ 100,00 sem nota
 
 ### RN-005 — Limites ampliados em viagem
 
-**Regra:** Os limites de alimentação, transporte urbano e hospedagem definidos
-na tabela do centro de custo são aumentados em 50% somente nas datas consideradas
-dias de viagem. Em hospedagem nacional, são dias de viagem o check-in e os dias
-de hospedagem contados a partir dele; se a descrição não informar check-in, usa-se
-a data da hospedagem, apoiada por transporte para aeroporto ou hotel na mesma
-data, quando disponível. Em hospedagem internacional, identificada pela menção
-`internacional` na descrição, também pode ser dia de viagem a véspera do check-in
-e o dia posterior ao último dia de hospedagem ou checkout, desde que haja, na
-respectiva data adjacente, uma despesa de transporte urbano cuja descrição
-mencione aeroporto ou hotel. Sem a menção `internacional`, a hospedagem é
-nacional. Check-in e checkout informados na descrição prevalecem sobre a data da
-despesa e a quantidade de diárias; sem checkout, o último dia é obtido pela
-quantidade de diárias, assumindo uma quando não informada. Somente datas dentro
-do período de competência recebem ampliação.
+**Regra:** A ampliação de limites obedece ao percentual definido na política do
+centro de custo para dias "em viagem". A verificação de viagem ocorre em duas
+etapas, nesta ordem:
+
+1. **Moeda estrangeira:** se houver pelo menos uma despesa declarada em moeda
+   estrangeira no dia, esse dia é considerado dia de viagem
+   internacional. Nesse caso, os limites de todas as despesas elegíveis neste dia são
+   ampliados pelo percentual de viagem da política, sem necessidade de outro
+   indicador de viagem.
+2. **Moeda nacional:** na ausência de qualquer despesa em moeda estrangeira, a
+   verificação segue os critérios originais de viagem. Em hospedagem nacional,
+   são dias de viagem o check-in e os dias de hospedagem contados a partir dele;
+   se a descrição não informar check-in, usa-se a data da hospedagem, apoiada
+   por transporte para aeroporto ou hotel na mesma data, quando disponível. Em
+   hospedagem internacional, identificada pela menção `internacional` na
+   descrição, também pode ser dia de viagem a véspera do check-in e o dia
+   posterior ao último dia de hospedagem ou checkout, desde que haja, na
+   respectiva data adjacente, uma despesa de transporte urbano cuja descrição
+   mencione aeroporto ou hotel. Sem a menção `internacional`, a hospedagem é
+   nacional. Check-in e checkout informados na descrição prevalecem sobre a data
+   da despesa e a quantidade de diárias; sem checkout, o último dia é obtido pela
+   quantidade de diárias, assumindo uma quando não informada. Somente datas dentro
+   do período de competência recebem ampliação.
 **Origem:** política do RH v4, itens A e B (com AMB-005)
-**Aceite:** colaborador do `CC-COMERCIAL` (alimentação R$ 90,00) em hospedagem
-nacional de duas diárias com check-in em 10/07 → limite ampliado para R$ 135,00
-somente em 10/07 e 11/07.
+**Aceite:** colaborador do `CC-COMERCIAL` (alimentação R$ 90,00) com uma despesa
+em EUR no período → todos os limites ampliados em 50%. Colaborador do
+`CC-COMERCIAL` em hospedagem nacional de duas diárias com check-in em 10/07, sem
+moeda estrangeira → limite ampliado para R$ 135,00 somente em 10/07 e 11/07.
 
 ### RN-006 — Tratamento de duplicatas
 
